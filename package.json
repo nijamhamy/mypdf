@@ -9,7 +9,11 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "jszip": "^3.10.2",
+    "lucide-react": "^1.51.0",
     "next": "16.3.8",
+    "pdf-lib": "^1.17.1",
+    "pdfjs-dist": "^6.4.299",
     "react": "19.2.8",
     "react-dom": "19.2.8"
   },
@@ -18,9 +22,11 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "autoprefixer": "^10.6.1",
     "eslint": "^9",
     "eslint-config-next": "16.3.8",
-    "tailwindcss": "^4",
+    "postcss": "^8.5.28",
+    "tailwindcss": "^4.3.3",
     "typescript": "^5"
   }
 }
