@@ -9,6 +9,7 @@ import FileDropzone from '@/components/pdf/FileDropzone';
 import ProcessButton from '@/components/pdf/ProcessButton';
 import ProcessingModal, { ProcessStatus } from '@/components/pdf/ProcessingModal';
 import { formatBytes, bytesToBlob, renderPdfThumbnails } from '@/lib/pdf-utils';
+import ToolSeoContent from '@/components/ToolSeoContent';
 
 interface PageState {
     rot: number;
@@ -249,13 +250,12 @@ export default function RotatePDFPage() {
                             {pages.map((p, i) => (
                                 <div
                                     key={i}
-                                    className={`rounded-xl border-2 bg-gray-50 p-2 transition ${
-                                        p.removed
+                                    className={`rounded-xl border-2 bg-gray-50 p-2 transition ${p.removed
                                             ? 'border-red-200 opacity-50'
                                             : p.selected
                                                 ? 'border-teal-500 ring-2 ring-teal-100'
                                                 : 'border-gray-200'
-                                    }`}
+                                        }`}
                                 >
                                     <button
                                         type="button"
@@ -361,6 +361,16 @@ export default function RotatePDFPage() {
                 onCancel={handleCancel}
                 onClose={closeModal}
                 onReset={resetPage}
+            />
+
+            <ToolSeoContent
+                id="rotate-pdf"
+                steps={[
+                    'Click the upload area to select the PDF with sideways or upside-down pages.',
+                    'Use the buttons on each page thumbnail to rotate it left or right, or use the top buttons to rotate all, odd or even pages at once.',
+                    'Select several pages by clicking them, then rotate or remove them together. Click Restore to bring back a removed page.',
+                    'Click Apply & create PDF and download your corrected file.',
+                ]}
             />
         </main>
     );

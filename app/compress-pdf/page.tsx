@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { PDFDocument } from 'pdf-lib';
 import { Minimize2, Upload, Download, Loader2, FileText } from 'lucide-react';
+import ToolSeoContent from '@/components/ToolSeoContent';
 
 export default function CompressPDFPage() {
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -133,6 +134,15 @@ export default function CompressPDFPage() {
                 )}
 
             </div>
+            <ToolSeoContent
+                id="compress-pdf"
+                steps={[
+                    'Click to upload the PDF you want to optimize.',
+                    'Click Compress PDF Now.',
+                    'Compare the new file size with the original size shown on the page.',
+                    'Click Download Compressed PDF to save the file.',
+                ]}
+            />
         </main>
     );
 }

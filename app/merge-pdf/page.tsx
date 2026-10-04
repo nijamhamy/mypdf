@@ -12,6 +12,7 @@ import ProcessingModal, { ProcessStatus } from '@/components/pdf/ProcessingModal
 import {
     uid, formatBytes, bytesToBlob, parsePageRange, getPdfPageCount, renderPdfThumbnails,
 } from '@/lib/pdf-utils';
+import ToolSeoContent from '@/components/ToolSeoContent';
 
 interface Item {
     id: string;
@@ -280,9 +281,8 @@ export default function MergePDFPage() {
                                         onDragOver={(e) => { e.preventDefault(); setOverId(it.id); }}
                                         onDragEnd={() => { setDragId(null); setOverId(null); }}
                                         onDrop={() => onDrop(it.id)}
-                                        className={`rounded-xl border bg-gray-50 transition ${
-                                            overId === it.id && dragId !== it.id ? 'border-red-500 ring-2 ring-red-200' : 'border-gray-200'
-                                        } ${dragId === it.id ? 'opacity-50' : ''}`}
+                                        className={`rounded-xl border bg-gray-50 transition ${overId === it.id && dragId !== it.id ? 'border-red-500 ring-2 ring-red-200' : 'border-gray-200'
+                                            } ${dragId === it.id ? 'opacity-50' : ''}`}
                                     >
                                         <div className="flex flex-wrap items-center gap-3 p-3">
                                             <GripVertical className="w-5 h-5 text-gray-400 cursor-grab shrink-0" />
@@ -299,9 +299,8 @@ export default function MergePDFPage() {
                                                 value={it.range}
                                                 onChange={(e) => setRange(it, e.target.value)}
                                                 placeholder="All pages (e.g. 1-3, 5)"
-                                                className={`w-44 px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 ${
-                                                    it.error ? 'border-red-500' : 'border-gray-300'
-                                                }`}
+                                                className={`w-44 px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 ${it.error ? 'border-red-500' : 'border-gray-300'
+                                                    }`}
                                             />
                                             <div className="flex items-center gap-1">
                                                 <button type="button" onClick={() => move(index, -1)} disabled={index === 0} className="p-2 rounded-lg hover:bg-gray-200 disabled:opacity-30" aria-label="Move up">
@@ -332,9 +331,8 @@ export default function MergePDFPage() {
                                                             type="button"
                                                             key={i}
                                                             onClick={() => togglePage(it, i)}
-                                                            className={`relative rounded-lg border-2 overflow-hidden bg-white aspect-[3/4] flex items-center justify-center ${
-                                                                on ? 'border-red-500' : 'border-gray-200 opacity-50'
-                                                            }`}
+                                                            className={`relative rounded-lg border-2 overflow-hidden bg-white aspect-[3/4] flex items-center justify-center ${on ? 'border-red-500' : 'border-gray-200 opacity-50'
+                                                                }`}
                                                         >
                                                             {it.thumbs[i] ? (
                                                                 // eslint-disable-next-line @next/next/no-img-element
@@ -404,6 +402,16 @@ export default function MergePDFPage() {
                 onClose={closeModal}
                 onReset={reset}
             />
-        </main>
+
+            <ToolSeoContent
+                id="merge-pdf"
+                steps={[
+                    'Click the upload area or drag in the PDF files you want to combine.',
+                    'Drag the files into the order you want, or use A–Z, Z–A or Reverse.',
+                    'Click the arrow on a file to preview its pages and pick only the ones you need, or type a range such as 1-3, 5.',
+                    'Click Merge, then download your combined PDF.',
+                ]}
+            />
+        </main >
     );
 }

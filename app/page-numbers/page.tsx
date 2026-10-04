@@ -9,6 +9,7 @@ import ProcessingModal, { ProcessStatus } from '@/components/pdf/ProcessingModal
 import {
     formatBytes, bytesToBlob, parsePageRange, renderPdfThumbnails,
 } from '@/lib/pdf-utils';
+import ToolSeoContent from '@/components/ToolSeoContent';
 
 type Position = 'tl' | 'tc' | 'tr' | 'bl' | 'bc' | 'br';
 type NumStyle = 'arabic' | 'romanLower' | 'romanUpper' | 'alphaLower' | 'alphaUpper';
@@ -303,11 +304,10 @@ export default function AddPageNumbersPage() {
                                                 type="button"
                                                 key={p.key}
                                                 onClick={() => setPosition(p.key)}
-                                                className={`px-2 py-2 text-xs rounded-lg border ${
-                                                    position === p.key
+                                                className={`px-2 py-2 text-xs rounded-lg border ${position === p.key
                                                         ? 'bg-pink-600 text-white border-pink-600'
                                                         : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-100'
-                                                }`}
+                                                    }`}
                                             >
                                                 {p.label}
                                             </button>
@@ -487,6 +487,16 @@ export default function AddPageNumbersPage() {
                 onCancel={handleCancel}
                 onClose={closeModal}
                 onReset={resetAll}
+            />
+
+            <ToolSeoContent
+                id="page-numbers"
+                steps={[
+                    'Click the upload area to select the PDF you want to number.',
+                    'Choose one of six positions, a number style (1, i, I, a, A) and a text format such as "Page 1 of N".',
+                    'Set the start number, enter the pages to number, and tick "Skip the first page" to leave the cover without a number.',
+                    'Check the live preview, then click Add Page Numbers and download your PDF.',
+                ]}
             />
         </main>
     );

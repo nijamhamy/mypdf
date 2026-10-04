@@ -10,6 +10,7 @@ import FileDropzone from '@/components/pdf/FileDropzone';
 import ProcessButton from '@/components/pdf/ProcessButton';
 import ProcessingModal, { ProcessStatus } from '@/components/pdf/ProcessingModal';
 import { uid, formatBytes, bytesToBlob } from '@/lib/pdf-utils';
+import ToolSeoContent from '@/components/ToolSeoContent';
 
 interface ImgItem {
     id: string;
@@ -454,6 +455,15 @@ export default function JpgToPdfPage() {
                 onCancel={handleCancel}
                 onClose={closeModal}
                 onReset={resetAll}
+            />
+            <ToolSeoContent
+                id="jpg-to-pdf"
+                steps={[
+                    'Click the upload area or drag your images in (JPG, PNG, WebP, GIF, BMP or AVIF).',
+                    'Drag to reorder, rotate or duplicate images as needed.',
+                    'Choose the page size, orientation, margin, image fit and quality.',
+                    'Click Convert, then download your PDF.',
+                ]}
             />
         </main>
     );

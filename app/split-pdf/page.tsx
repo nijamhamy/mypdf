@@ -7,6 +7,7 @@ import FileDropzone from '@/components/pdf/FileDropzone';
 import ProcessButton from '@/components/pdf/ProcessButton';
 import ProcessingModal, { ProcessStatus } from '@/components/pdf/ProcessingModal';
 import { formatBytes, bytesToBlob, parsePageRange, renderPdfThumbnails } from '@/lib/pdf-utils';
+import ToolSeoContent from '@/components/ToolSeoContent';
 
 type Mode = 'extract' | 'delete' | 'ranges' | 'every';
 
@@ -312,8 +313,8 @@ export default function SplitPDFPage() {
                                     key={m.key}
                                     onClick={() => setMode(m.key)}
                                     className={`text-left p-3 rounded-xl border-2 transition ${mode === m.key
-                                            ? 'border-blue-600 bg-blue-50'
-                                            : 'border-gray-200 bg-white hover:bg-gray-50'
+                                        ? 'border-blue-600 bg-blue-50'
+                                        : 'border-gray-200 bg-white hover:bg-gray-50'
                                         }`}
                                 >
                                     <p className="text-sm font-bold text-gray-800">{m.title}</p>
@@ -346,8 +347,8 @@ export default function SplitPDFPage() {
                                             key={i}
                                             onClick={() => togglePage(i)}
                                             className={`relative rounded-lg border-2 overflow-hidden bg-white aspect-[3/4] flex items-center justify-center ${on
-                                                    ? mode === 'delete' ? 'border-red-500' : 'border-blue-500'
-                                                    : 'border-gray-200'
+                                                ? mode === 'delete' ? 'border-red-500' : 'border-blue-500'
+                                                : 'border-gray-200'
                                                 } ${on && mode === 'delete' ? 'opacity-50' : ''}`}
                                         >
                                             {thumbs[i] ? (
@@ -488,6 +489,16 @@ export default function SplitPDFPage() {
                 onCancel={handleCancel}
                 onClose={closeModal}
                 onReset={resetAll}
+            />
+
+            <ToolSeoContent
+                id="split-pdf"
+                steps={[
+                    'Click the upload area to select the PDF you want to split.',
+                    'Choose a mode: Extract pages, Delete pages, Split by ranges, or Split every N pages.',
+                    'Click page thumbnails or type a range such as 1-3, 5, and check the result list that shows the files to be created.',
+                    'Click the button to create your PDF. Several files download together as one ZIP.',
+                ]}
             />
         </main>
     );

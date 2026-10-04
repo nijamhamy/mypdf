@@ -7,6 +7,7 @@ import FileDropzone from '@/components/pdf/FileDropzone';
 import ProcessButton from '@/components/pdf/ProcessButton';
 import ProcessingModal, { ProcessStatus } from '@/components/pdf/ProcessingModal';
 import { formatBytes, bytesToBlob, parsePageRange, renderPdfThumbnails } from '@/lib/pdf-utils';
+import ToolSeoContent from '@/components/ToolSeoContent';
 
 type WmMode = 'text' | 'image';
 type Pos = 'tl' | 'tc' | 'tr' | 'ml' | 'mc' | 'mr' | 'bl' | 'bc' | 'br';
@@ -639,6 +640,16 @@ export default function AddWatermarkPage() {
                 onCancel={handleCancel}
                 onClose={closeModal}
                 onReset={resetAll}
+            />
+
+            <ToolSeoContent
+                id="watermark-pdf"
+                steps={[
+                    'Click the upload area to select the PDF you want to watermark.',
+                    'Choose a text watermark (with font, size and colour) or upload a PNG or JPG logo as an image watermark.',
+                    'Set the opacity, rotation and position, or tick "Repeat across page (tile)" to cover the whole page.',
+                    'Pick all, odd, even or a custom range of pages, check the live preview, then click Add Watermark and download your PDF.',
+                ]}
             />
         </main>
     );

@@ -7,6 +7,7 @@ import FileDropzone from '@/components/pdf/FileDropzone';
 import ProcessButton from '@/components/pdf/ProcessButton';
 import ProcessingModal, { ProcessStatus } from '@/components/pdf/ProcessingModal';
 import { formatBytes, parsePageRange, renderPdfThumbnails } from '@/lib/pdf-utils';
+import ToolSeoContent from '@/components/ToolSeoContent';
 
 type Format = 'jpg' | 'png' | 'webp';
 
@@ -344,9 +345,8 @@ export default function PdfToJpgPage() {
                                         value={range}
                                         onChange={(e) => onRangeChange(e.target.value)}
                                         placeholder="All pages (e.g. 1-3, 5)"
-                                        className={`w-48 px-3 py-1.5 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 ${
-                                            rangeInvalid ? 'border-red-500' : 'border-gray-300'
-                                        }`}
+                                        className={`w-48 px-3 py-1.5 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 ${rangeInvalid ? 'border-red-500' : 'border-gray-300'
+                                            }`}
                                     />
                                     <button type="button" onClick={() => setAll(true)} className="px-3 py-1.5 text-xs border rounded-lg bg-white hover:bg-gray-100">Select all</button>
                                     <button type="button" onClick={() => setAll(false)} className="px-3 py-1.5 text-xs border rounded-lg bg-white hover:bg-gray-100">Select none</button>
@@ -361,9 +361,8 @@ export default function PdfToJpgPage() {
                                         type="button"
                                         key={i}
                                         onClick={() => togglePage(i)}
-                                        className={`relative rounded-lg border-2 overflow-hidden bg-white aspect-[3/4] flex items-center justify-center ${
-                                            on ? 'border-amber-500' : 'border-gray-200 opacity-50'
-                                        }`}
+                                        className={`relative rounded-lg border-2 overflow-hidden bg-white aspect-[3/4] flex items-center justify-center ${on ? 'border-amber-500' : 'border-gray-200 opacity-50'
+                                            }`}
                                     >
                                         {thumbs[i] ? (
                                             // eslint-disable-next-line @next/next/no-img-element
@@ -414,6 +413,16 @@ export default function PdfToJpgPage() {
                 onCancel={handleCancel}
                 onClose={closeModal}
                 onReset={resetAll}
+            />
+
+            <ToolSeoContent
+                id="pdf-to-jpg"
+                steps={[
+                    'Click the upload area to select the PDF you want to convert.',
+                    'Choose the format (JPG, PNG or WebP), the resolution from 72 to 300 DPI, and the quality.',
+                    'Click the page thumbnails to choose pages, or type a range such as 1-3, 5.',
+                    'Click Convert and download your image. Several pages come as one ZIP file.',
+                ]}
             />
         </main>
     );
