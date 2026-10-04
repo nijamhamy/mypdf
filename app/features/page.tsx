@@ -2,21 +2,24 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import {
     HelpCircle, ArrowRight, CheckCircle2, ShieldCheck, Lock, FileCheck, BookOpen,
-    ListChecks, Wrench, Scale, Users, Layers,
+    ListChecks, Wrench, Scale, Users, Layers, Compass, Info,
 } from 'lucide-react';
 import {
-    CORE_FEATURES, TOOLS, GUIDES, USE_CASES, COMPARISON, TROUBLESHOOTING,
+    CORE_FEATURES, CHOOSER, TOOLS, GUIDES, USE_CASES, LIMITS, COMPARISON, TROUBLESHOOTING,
     PRIVACY_POINTS, SUPPORTED, FAQS, GLOSSARY, TOC,
 } from './content';
+
 
 export const metadata: Metadata = {
     title: 'Features, Guides & Help Center | mypdf.site',
     description:
-        'Learn how mypdf.site merges, splits, rotates, watermarks and numbers PDFs, and converts images to PDF and back, all inside your browser. Step-by-step guides, privacy details, FAQ and troubleshooting.',
+        'Learn how mypdf.site merges, splits, rotates, compresses, watermarks, numbers, edits and converts PDFs, including PDF to Word with OCR, all inside your browser. Step-by-step guides, privacy details, limits, FAQ and troubleshooting.',
     alternates: { canonical: '/features' },
 };
 
+
 const sectionCls = 'bg-white rounded-3xl border border-gray-100 p-6 sm:p-10 shadow-sm scroll-mt-24';
+
 
 function SectionTitle({ icon: Icon, title, sub }: { icon: React.ElementType; title: string; sub?: string }) {
     return (
@@ -30,10 +33,23 @@ function SectionTitle({ icon: Icon, title, sub }: { icon: React.ElementType; tit
     );
 }
 
+
 export default function FeaturesPage() {
+    const faqJsonLd = {
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        mainEntity: FAQS.map((f) => ({
+            '@type': 'Question',
+            name: f.q,
+            acceptedAnswer: { '@type': 'Answer', text: f.a },
+        })),
+    };
+
     return (
         <main className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+            <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
             <div className="max-w-6xl mx-auto space-y-14">
+
 
                 <header className="text-center max-w-3xl mx-auto">
                     <span className="bg-blue-100 text-blue-700 text-xs font-bold uppercase px-3 py-1 rounded-full tracking-wider">
@@ -43,8 +59,9 @@ export default function FeaturesPage() {
                         Why choose mypdf.site?
                     </h1>
                     <p className="text-lg text-gray-600 leading-relaxed">
-                        A set of PDF tools that run entirely in your browser. Merge, split, rotate, watermark
-                        and number PDFs, or convert images to PDF and back, without uploading your documents anywhere.
+                        A set of PDF tools that run entirely in your browser. Merge, split, rotate, compress, watermark,
+                        number and edit PDFs, convert a PDF to Word (with OCR for scans), or convert images to PDF and back,
+                        without uploading your documents anywhere.
                     </p>
                     <div className="mt-6 flex flex-wrap justify-center gap-3 text-sm">
                         <span className="px-4 py-2 bg-white border border-gray-200 rounded-full font-medium text-gray-700">{TOOLS.length} tools</span>
@@ -53,6 +70,7 @@ export default function FeaturesPage() {
                         <span className="px-4 py-2 bg-white border border-gray-200 rounded-full font-medium text-gray-700">Free to use</span>
                     </div>
                 </header>
+
 
                 <nav aria-label="On this page" className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
                     <p className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-3">On this page</p>
@@ -67,6 +85,7 @@ export default function FeaturesPage() {
                     </ul>
                 </nav>
 
+
                 <section id="why" className="scroll-mt-24">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {CORE_FEATURES.map((f) => (
@@ -80,6 +99,38 @@ export default function FeaturesPage() {
                         ))}
                     </div>
                 </section>
+
+
+                <section id="choose" className={sectionCls}>
+                    <SectionTitle
+                        icon={Compass}
+                        title="Which tool do I need?"
+                        sub="Start from what you want to achieve. Each row points to the tool that does it best, with a note on what to expect."
+                    />
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-sm text-left border border-gray-200">
+                            <thead className="bg-gray-50 text-gray-700">
+                                <tr>
+                                    <th className="px-4 py-3 font-semibold">I want to…</th>
+                                    <th className="px-4 py-3 font-semibold">Use</th>
+                                    <th className="px-4 py-3 font-semibold">Good to know</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {CHOOSER.map((c) => (
+                                    <tr key={c.goal} className="border-t border-gray-200">
+                                        <td className="px-4 py-3 font-medium text-gray-900">{c.goal}</td>
+                                        <td className="px-4 py-3">
+                                            <Link href={c.href} className="text-blue-600 font-semibold hover:underline">{c.tool}</Link>
+                                        </td>
+                                        <td className="px-4 py-3 text-gray-600">{c.note}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
 
                 <section id="tools" className={sectionCls}>
                     <SectionTitle
@@ -131,6 +182,7 @@ export default function FeaturesPage() {
                     </div>
                 </section>
 
+
                 <section id="how-it-works" className={sectionCls}>
                     <SectionTitle
                         icon={Layers}
@@ -140,7 +192,7 @@ export default function FeaturesPage() {
                     <ol className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         {[
                             { n: 1, t: 'You choose a file', d: 'When you select or drop a PDF, your browser gives the page access to that single file. The file is read into memory on your device. It is not sent anywhere.' },
-                            { n: 2, t: 'Your browser does the work', d: 'Open-source JavaScript libraries read the structure of the PDF, copy, rotate or draw on pages, and build a new document. Page previews are drawn by a PDF rendering engine in the same tab.' },
+                            { n: 2, t: 'Your browser does the work', d: 'Open-source JavaScript libraries read the structure of the PDF, copy, rotate or draw on pages, extract text, and build a new document. Page previews are drawn by a PDF rendering engine in the same tab.' },
                             { n: 3, t: 'You download the result', d: 'The finished file is created as a temporary object in your browser and handed to you as a normal download. Closing the tab discards it.' },
                         ].map((s) => (
                             <li key={s.n} className="rounded-2xl bg-gray-50 border border-gray-200 p-6">
@@ -172,6 +224,7 @@ export default function FeaturesPage() {
                         </table>
                     </div>
                 </section>
+
 
                 <section id="guides" className={sectionCls}>
                     <SectionTitle
@@ -216,6 +269,7 @@ export default function FeaturesPage() {
                     </div>
                 </section>
 
+
                 <section id="use-cases" className={sectionCls}>
                     <SectionTitle
                         icon={Users}
@@ -232,6 +286,7 @@ export default function FeaturesPage() {
                         ))}
                     </div>
                 </section>
+
 
                 <section id="privacy" className={sectionCls}>
                     <SectionTitle
@@ -263,6 +318,24 @@ export default function FeaturesPage() {
                     </p>
                 </section>
 
+
+                <section id="limits" className={sectionCls}>
+                    <SectionTitle
+                        icon={Info}
+                        title="What these tools can and cannot do"
+                        sub="No browser tool can do everything. Knowing the limits up front saves time and helps you pick the right option."
+                    />
+                    <dl className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        {LIMITS.map((l) => (
+                            <div key={l.area} className="rounded-xl border border-gray-200 p-5">
+                                <dt className="font-semibold text-gray-900">{l.area}</dt>
+                                <dd className="text-sm text-gray-600 mt-1 leading-relaxed">{l.text}</dd>
+                            </div>
+                        ))}
+                    </dl>
+                </section>
+
+
                 <section id="comparison" className={sectionCls}>
                     <SectionTitle
                         icon={Scale}
@@ -292,16 +365,17 @@ export default function FeaturesPage() {
                         </table>
                     </div>
                     <p className="text-sm text-gray-600 mt-5 leading-relaxed">
-                        Browser tools are ideal for quick, private jobs. If you regularly edit the text inside PDFs, fill in
-                        complex forms or manage thousands of files, dedicated desktop software is the better fit.
+                        Browser tools are ideal for quick, private jobs. If you regularly rewrite whole paragraphs inside PDFs,
+                        fill in complex forms or manage thousands of files, dedicated desktop software is the better fit.
                     </p>
                 </section>
+
 
                 <section id="troubleshooting" className={sectionCls}>
                     <SectionTitle
                         icon={Wrench}
                         title="Troubleshooting common problems"
-                        sub="Most issues come from very large files, protected files or limited device memory. These fixes solve the majority."
+                        sub="Most issues come from very large files, protected files, older font encodings or limited device memory. These fixes solve the majority."
                     />
                     <dl className="space-y-5">
                         {TROUBLESHOOTING.map((t) => (
@@ -312,6 +386,7 @@ export default function FeaturesPage() {
                         ))}
                     </dl>
                 </section>
+
 
                 <section id="faq" className={sectionCls}>
                     <SectionTitle icon={HelpCircle} title="Frequently asked questions" />
@@ -335,6 +410,7 @@ export default function FeaturesPage() {
                     </p>
                 </section>
 
+
                 <section id="glossary" className={sectionCls}>
                     <SectionTitle
                         icon={BookOpen}
@@ -351,10 +427,11 @@ export default function FeaturesPage() {
                     </dl>
                 </section>
 
+
                 <section className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-3xl p-8 sm:p-12 text-center text-white shadow-xl">
                     <h2 className="text-3xl font-extrabold mb-4">Ready to manage your documents?</h2>
                     <p className="text-blue-100 max-w-xl mx-auto mb-8 text-sm sm:text-base">
-                        Go back to the homepage and start merging, splitting, rotating or converting your PDF files right now.
+                        Go back to the homepage and start merging, editing, converting or compressing your PDF files right now.
                     </p>
                     <Link
                         href="/"
@@ -364,6 +441,7 @@ export default function FeaturesPage() {
                         <ArrowRight className="w-5 h-5" />
                     </Link>
                 </section>
+
 
                 <p className="text-center text-xs text-gray-500">
                     Last updated October 2026. Questions or corrections? <Link href="/contact" className="underline">Contact us</Link>.

@@ -1,48 +1,52 @@
 import type { MetadataRoute } from 'next';
 import { TOOLS } from '@/lib/tools';
 
+
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? 'https://mypdf.site').replace(/\/$/, '');
 
-const LAST_UPDATED = new Date('2026-10-04');
 
-type Entry = {
-    path: string;
-    priority: number;
-    changeFrequency: 'daily' | 'weekly' | 'monthly' | 'yearly';
+// Used when a page has no entry in PAGE_DATES below.
+const DEFAULT_DATE = '2026-10-01';
+
+
+// Change a date only when the main content of that page changes in a meaningful way.
+// Do not update it for small edits such as a footer or copyright year.
+const PAGE_DATES: Record<string, string> = {
+    '/': '2026-10-05',
+    '/features': '2026-10-05',
+    '/faq': '2026-10-05',
+    '/pdf-to-word': '2026-10-05',
+    '/edit-pdf': '2026-10-05',
 };
 
-const STATIC_PAGES: Entry[] = [
-    { path: '/', priority: 1.0, changeFrequency: 'weekly' },
-    { path: '/pdf-converter', priority: 0.8, changeFrequency: 'monthly' },
-    { path: '/features', priority: 0.7, changeFrequency: 'monthly' },
-    { path: '/faq', priority: 0.7, changeFrequency: 'monthly' },
-    { path: '/about', priority: 0.5, changeFrequency: 'yearly' },
-    { path: '/contact', priority: 0.4, changeFrequency: 'yearly' },
-    { path: '/feedback', priority: 0.4, changeFrequency: 'yearly' },
-    { path: '/support-project', priority: 0.3, changeFrequency: 'yearly' },
-    { path: '/privacy', priority: 0.3, changeFrequency: 'yearly' },
-    { path: '/terms', priority: 0.3, changeFrequency: 'yearly' },
-    { path: '/disclaimer', priority: 0.3, changeFrequency: 'yearly' },
+
+const STATIC_PATHS: string[] = [
+    '/',
+    '/pdf-converter',
+    '/features',
+    '/faq',
+    '/about',
+    '/contact',
+    '/feedback',
+    '/support-project',
+    '/privacy',
+    '/terms',
+    '/disclaimer',
 ];
 
-export default function sitemap(): MetadataRoute.Sitemap {
-    const toolPages: Entry[] = TOOLS.map((t) => ({
-        path: t.href,
-        priority: 0.9,
-        changeFrequency: 'monthly',
-    }));
 
+export default function sitemap(): MetadataRoute.Sitemap {
+    const paths = [...STATIC_PATHS, ...TOOLS.map((t) => t.href)];
     const seen = new Set<string>();
-    return [...STATIC_PAGES, ...toolPages]
+
+    return paths
         .filter((p) => {
-            if (seen.has(p.path)) return false;
-            seen.add(p.path);
+            if (seen.has(p)) return false;
+            seen.add(p);
             return true;
         })
         .map((p) => ({
-            url: p.path === '/' ? SITE_URL : `${SITE_URL}${p.path}`,
-            lastModified: LAST_UPDATED,
-            changeFrequency: p.changeFrequency,
-            priority: p.priority,
+            url: p === '/' ? SITE_URL : `${SITE_URL}${p}`,
+            lastModified: new Date(PAGE_DATES[p] ?? DEFAULT_DATE),
         }));
 }

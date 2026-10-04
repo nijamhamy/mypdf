@@ -1,5 +1,5 @@
 import {
-    Files, Scissors, RotateCw, Stamp, Hash, Image as ImageIcon, FileText, Minimize2,
+    Files, Scissors, RotateCw, Stamp, Hash, Image as ImageIcon, FileText, Minimize2, FileOutput, Type,
     type LucideIcon,
 } from 'lucide-react';
 
@@ -71,6 +71,22 @@ export const TOOLS: ToolInfo[] = [
         ],
     },
     {
+        id: 'pdf-to-word', title: 'PDF to Word', href: '/pdf-to-word', category: 'convert',
+        short: 'Convert a PDF to an editable Word document, with OCR for scanned files.',
+        points: ['Editable text with headings and bullets', 'OCR for scanned PDFs', 'Pick pages and keep page breaks'],
+        keywords: ['pdf to word', 'pdf to docx', 'convert pdf to word', 'pdf to doc', 'ocr pdf', 'scanned pdf to word'],
+        icon: FileOutput, iconColor: 'text-sky-500', cardBg: 'bg-sky-50 hover:bg-sky-100 border-sky-200',
+        badge: 'Advanced',
+        seoTitle: 'PDF to Word Converter',
+        seoDescription: 'Convert PDF to an editable Word (.docx) file, with OCR for scans. Free, runs in your browser.',
+        faqs: [
+            { q: 'Is my PDF uploaded to a server?', a: 'No. The conversion runs in your browser, so your file stays on your device. OCR downloads its language data once, but your PDF is never sent anywhere.' },
+            { q: 'Will the Word file look exactly like my PDF?', a: 'Not always. The editable mode rebuilds text, headings, bullets, bordered tables and images, but tables without borders, merged cells, text colors and drawings are not recreated. Use Page images mode when the exact look matters.' },
+            { q: 'Can I convert a scanned PDF?', a: 'Yes. Choose Scanned PDF (OCR) and pick the language. Accuracy depends on scan quality.' },
+            { q: 'Can I convert only some pages?', a: 'Yes. Click page thumbnails or type a range such as 1-3, 5.' },
+        ],
+    },
+    {
         id: 'merge-pdf', title: 'Merge PDF', href: '/merge-pdf', category: 'organize',
         short: 'Combine several PDFs into one document in exactly the order you want.',
         points: ['Drag and drop ordering', 'Choose pages from each file', 'Sort A–Z or reverse the list'],
@@ -113,6 +129,22 @@ export const TOOLS: ToolInfo[] = [
             { q: 'Can I rotate only some pages?', a: 'Yes. Rotate single pages, odd pages, even pages or a selection.' },
             { q: 'Is the rotation saved in the file?', a: 'Yes. The PDF you download has the new orientation.' },
             { q: 'Can I delete pages while rotating?', a: 'Yes. You can remove pages in the same step.' },
+        ],
+    },
+    {
+        id: 'edit-pdf', title: 'Edit PDF', href: '/edit-pdf', category: 'edit',
+        short: 'Edit text, add text, highlight, draw, whiteout and insert images in your PDF.',
+        points: ['Click existing text to edit it', 'Any language for new text', 'Secure flatten for permanent redaction'],
+        keywords: ['edit pdf', 'pdf editor', 'edit pdf text', 'add text to pdf', 'whiteout pdf', 'highlight pdf', 'annotate pdf'],
+        icon: Type, iconColor: 'text-orange-500', cardBg: 'bg-orange-50 hover:bg-orange-100 border-orange-200',
+        badge: 'Advanced',
+        seoTitle: 'Edit PDF Online',
+        seoDescription: 'Edit PDF text, add text, highlight, draw, whiteout and add images. Free, runs in your browser, no upload.',
+        faqs: [
+            { q: 'Is my PDF uploaded to a server?', a: 'No. Editing and saving happen in your browser, so your file stays on your device.' },
+            { q: 'Can I change the existing text in a PDF?', a: 'Yes. Click a line of text, and the tool covers the original and places editable text on top. The original text stays hidden underneath unless you turn on Secure flatten, which turns pages into images.' },
+            { q: 'Does it support Arabic, Tamil and other languages?', a: 'Yes. New text in any script is saved as a sharp image so it displays correctly. Latin text is saved as real PDF text.' },
+            { q: 'How do I permanently remove sensitive text?', a: 'Cover it with a whiteout box and turn on Secure flatten before saving. This removes the text underneath, but the saved PDF becomes images.' },
         ],
     },
     {

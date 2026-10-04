@@ -1,5 +1,6 @@
 'use client';
 
+
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import {
@@ -7,9 +8,11 @@ import {
 } from 'lucide-react';
 import { CATEGORIES, FAQ_ITEMS, type CategoryId } from './faq-data';
 
+
 function escapeRegExp(s: string) {
     return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
+
 
 function Highlight({ text, query }: { text: string; query: string }) {
     const q = query.trim();
@@ -26,6 +29,7 @@ function Highlight({ text, query }: { text: string; query: string }) {
     );
 }
 
+
 export default function FaqClient() {
     const [query, setQuery] = useState('');
     const [category, setCategory] = useState<CategoryId | 'all'>('all');
@@ -33,11 +37,13 @@ export default function FaqClient() {
     const [copiedId, setCopiedId] = useState<string | null>(null);
     const searchRef = useRef<HTMLInputElement>(null);
 
+
     const counts = useMemo(() => {
         const c: Record<string, number> = { all: FAQ_ITEMS.length };
         FAQ_ITEMS.forEach((f) => { c[f.category] = (c[f.category] ?? 0) + 1; });
         return c;
     }, []);
+
 
     const filtered = useMemo(() => {
         const q = query.trim().toLowerCase();
@@ -48,11 +54,13 @@ export default function FaqClient() {
         });
     }, [query, category]);
 
+
     const grouped = useMemo(() => {
         return CATEGORIES
             .map((c) => ({ ...c, items: filtered.filter((f) => f.category === c.id) }))
             .filter((g) => g.items.length > 0);
     }, [filtered]);
+
 
     const openFromHash = useCallback(() => {
         const id = window.location.hash.replace('#', '');
@@ -65,6 +73,7 @@ export default function FaqClient() {
         }, 100);
     }, []);
 
+
     useEffect(() => {
         if (!window.location.hash) {
             setOpen(new Set([FAQ_ITEMS[0].id]));
@@ -74,6 +83,7 @@ export default function FaqClient() {
         window.addEventListener('hashchange', openFromHash);
         return () => window.removeEventListener('hashchange', openFromHash);
     }, [openFromHash]);
+
 
     useEffect(() => {
         const onKey = (e: KeyboardEvent) => {
@@ -88,9 +98,11 @@ export default function FaqClient() {
         return () => window.removeEventListener('keydown', onKey);
     }, []);
 
+
     useEffect(() => {
         if (query.trim()) setOpen(new Set(filtered.map((f) => f.id)));
     }, [query, filtered]);
+
 
     const toggle = (id: string) =>
         setOpen((prev) => {
@@ -99,8 +111,10 @@ export default function FaqClient() {
             return next;
         });
 
+
     const expandAll = () => setOpen(new Set(filtered.map((f) => f.id)));
     const collapseAll = () => setOpen(new Set());
+
 
     const copyLink = async (id: string) => {
         try {
@@ -112,7 +126,9 @@ export default function FaqClient() {
         }
     };
 
+
     const allOpen = filtered.length > 0 && filtered.every((f) => open.has(f.id));
+
 
     return (
         <div className="space-y-8">
@@ -124,7 +140,7 @@ export default function FaqClient() {
                         value={query}
                         onChange={(e) => setQuery(e.target.value)}
                         type="search"
-                        placeholder="Search questions, for example “password” or “DPI”"
+                        placeholder="Search questions, for example “password”, “OCR” or “DPI”"
                         aria-label="Search frequently asked questions"
                         className="w-full pl-12 pr-24 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
                     />
@@ -141,6 +157,7 @@ export default function FaqClient() {
                         <kbd className="hidden sm:block absolute right-4 top-1/2 -translate-y-1/2 text-xs text-gray-400 border border-gray-200 rounded px-1.5 py-0.5">/</kbd>
                     )}
                 </div>
+
 
                 <div className="flex flex-wrap gap-2" role="tablist" aria-label="Question categories">
                     {[{ id: 'all' as const, label: 'All' }, ...CATEGORIES].map((c) => (
@@ -160,6 +177,7 @@ export default function FaqClient() {
                     ))}
                 </div>
 
+
                 <div className="flex items-center justify-between text-sm text-gray-500">
                     <span aria-live="polite">
                         {filtered.length} {filtered.length === 1 ? 'question' : 'questions'}
@@ -177,6 +195,7 @@ export default function FaqClient() {
                 </div>
             </div>
 
+
             {grouped.length === 0 ? (
                 <div className="bg-white rounded-2xl border border-gray-200 p-10 text-center space-y-3">
                     <SearchX className="w-10 h-10 text-gray-400 mx-auto" />
@@ -193,9 +212,12 @@ export default function FaqClient() {
             ) : (
                 grouped.map((g) => (
                     <section key={g.id} aria-labelledby={`cat-${g.id}`} className="space-y-3">
-                        <h2 id={`cat-${g.id}`} className="text-sm font-bold uppercase tracking-wider text-gray-500">
-                            {g.label}
-                        </h2>
+                        <div>
+                            <h2 id={`cat-${g.id}`} className="text-sm font-bold uppercase tracking-wider text-gray-500">
+                                {g.label}
+                            </h2>
+                            <p className="text-sm text-gray-500 mt-1">{g.description}</p>
+                        </div>
                         <div className="space-y-3">
                             {g.items.map((f) => {
                                 const isOpen = open.has(f.id);
@@ -242,6 +264,7 @@ export default function FaqClient() {
                     </section>
                 ))
             )}
+
 
             <div className="bg-white rounded-3xl border border-gray-200 p-8 sm:p-10 text-center shadow-sm space-y-4">
                 <div className="inline-flex items-center justify-center w-12 h-12 bg-indigo-50 text-indigo-600 rounded-xl">
