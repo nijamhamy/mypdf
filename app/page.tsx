@@ -11,7 +11,7 @@ import { FAQ_ITEMS } from '@/app/faq/faq-data';
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://mypdf.site';
 
 export const metadata: Metadata = {
-  title: 'Free Online PDF Tools – Merge, Split, Rotate, Convert | mypdf.site',
+  title: 'Free Online PDF Tools – Merge, Split, Compress | mypdf.site',
   description:
     'Merge, split, rotate, watermark, number and convert PDFs for free. Every tool runs in your browser, so your files are never uploaded.',
   alternates: { canonical: '/' },
