@@ -16,13 +16,13 @@ const STATIC_PAGES: Entry[] = [
     { path: '/pdf-converter', priority: 0.8, changeFrequency: 'monthly' },
     { path: '/features', priority: 0.7, changeFrequency: 'monthly' },
     { path: '/faq', priority: 0.7, changeFrequency: 'monthly' },
+    { path: '/about', priority: 0.5, changeFrequency: 'yearly' },
     { path: '/contact', priority: 0.4, changeFrequency: 'yearly' },
     { path: '/feedback', priority: 0.4, changeFrequency: 'yearly' },
     { path: '/support-project', priority: 0.3, changeFrequency: 'yearly' },
-    // Add these only after the pages exist, otherwise Search Console reports 404 errors:
-    // { path: '/privacy', priority: 0.3, changeFrequency: 'yearly' },
-    // { path: '/about', priority: 0.3, changeFrequency: 'yearly' },
-    // { path: '/terms', priority: 0.3, changeFrequency: 'yearly' },
+    { path: '/privacy', priority: 0.3, changeFrequency: 'yearly' },
+    { path: '/terms', priority: 0.3, changeFrequency: 'yearly' },
+    { path: '/disclaimer', priority: 0.3, changeFrequency: 'yearly' },
 ];
 
 export default function sitemap(): MetadataRoute.Sitemap {
