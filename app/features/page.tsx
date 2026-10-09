@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import {
     HelpCircle, ArrowRight, CheckCircle2, ShieldCheck, Lock, FileCheck, BookOpen,
-    ListChecks, Wrench, Scale, Users, Layers, Compass, Info,
+    ListChecks, Wrench, Scale, Users, Layers, Compass, Info, LayoutGrid, Sparkles, UserCheck,
 } from 'lucide-react';
 import {
     CORE_FEATURES, CHOOSER, TOOLS, GUIDES, USE_CASES, LIMITS, COMPARISON, TROUBLESHOOTING,
@@ -10,28 +10,42 @@ import {
 } from './content';
 
 
+
 export const metadata: Metadata = {
     title: 'Features, Guides & Help Center | mypdf.site',
     description:
-        'Learn how mypdf.site merges, splits, rotates, compresses, watermarks, numbers, edits and converts PDFs, including PDF to Word with OCR, all inside your browser. Step-by-step guides, privacy details, limits, FAQ and troubleshooting.',
+        'Learn how mypdf.site merges, splits, rotates, compresses, watermarks, numbers, edits and converts PDFs, makes printable photo sheets, and runs PDF to Word with OCR, all inside your browser. Step-by-step guides, privacy details, limits, FAQ and troubleshooting.',
     alternates: { canonical: '/features' },
 };
+
 
 
 const sectionCls = 'bg-white rounded-3xl border border-gray-100 p-6 sm:p-10 shadow-sm scroll-mt-24';
 
 
-function SectionTitle({ icon: Icon, title, sub }: { icon: React.ElementType; title: string; sub?: string }) {
+
+function SectionTitle({
+    icon: Icon, title, sub, tone = 'blue',
+}: { icon: React.ElementType; title: string; sub?: string; tone?: 'blue' | 'green' | 'amber' | 'violet' }) {
+    const tones = {
+        blue: 'bg-blue-50 text-blue-600',
+        green: 'bg-green-50 text-green-600',
+        amber: 'bg-amber-50 text-amber-600',
+        violet: 'bg-violet-50 text-violet-600',
+    } as const;
     return (
         <div className="border-b border-gray-100 pb-5 mb-8">
             <div className="flex items-center gap-3">
-                <Icon className="w-7 h-7 text-blue-600 shrink-0" />
+                <span className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${tones[tone]}`}>
+                    <Icon className="w-6 h-6" />
+                </span>
                 <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">{title}</h2>
             </div>
             {sub && <p className="text-gray-600 mt-3 leading-relaxed max-w-3xl">{sub}</p>}
         </div>
     );
 }
+
 
 
 export default function FeaturesPage() {
@@ -45,31 +59,56 @@ export default function FeaturesPage() {
         })),
     };
 
+
     return (
-        <main className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-            <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
+        <main className="min-h-screen bg-gray-50 py-10 px-4 sm:px-6 lg:px-8">
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd).replace(/</g, '\\u003c') }}
+            />
             <div className="max-w-6xl mx-auto space-y-14">
 
 
-                <header className="text-center max-w-3xl mx-auto">
-                    <span className="bg-blue-100 text-blue-700 text-xs font-bold uppercase px-3 py-1 rounded-full tracking-wider">
-                        Features &amp; Help Center
-                    </span>
-                    <h1 className="text-4xl sm:text-5xl font-extrabold text-gray-900 tracking-tight mt-4 mb-4">
-                        Why choose mypdf.site?
-                    </h1>
-                    <p className="text-lg text-gray-600 leading-relaxed">
-                        A set of PDF tools that run entirely in your browser. Merge, split, rotate, compress, watermark,
-                        number and edit PDFs, convert a PDF to Word (with OCR for scans), or convert images to PDF and back,
-                        without uploading your documents anywhere.
-                    </p>
-                    <div className="mt-6 flex flex-wrap justify-center gap-3 text-sm">
-                        <span className="px-4 py-2 bg-white border border-gray-200 rounded-full font-medium text-gray-700">{TOOLS.length} tools</span>
-                        <span className="px-4 py-2 bg-white border border-gray-200 rounded-full font-medium text-gray-700">No file uploads</span>
-                        <span className="px-4 py-2 bg-white border border-gray-200 rounded-full font-medium text-gray-700">No sign-up</span>
-                        <span className="px-4 py-2 bg-white border border-gray-200 rounded-full font-medium text-gray-700">Free to use</span>
+                <header className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-600 via-indigo-600 to-violet-600 text-white p-8 sm:p-14 text-center shadow-xl">
+                    <div className="absolute -top-24 -left-24 w-72 h-72 rounded-full bg-white/10 blur-2xl" aria-hidden="true" />
+                    <div className="absolute -bottom-28 -right-20 w-80 h-80 rounded-full bg-cyan-300/20 blur-3xl" aria-hidden="true" />
+                    <div className="relative max-w-3xl mx-auto">
+                        <span className="inline-flex items-center gap-1.5 bg-white/15 text-white text-xs font-bold uppercase px-3 py-1 rounded-full tracking-wider">
+                            <Sparkles className="w-3.5 h-3.5" /> Features &amp; Help Center
+                        </span>
+                        <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight mt-5 mb-4">
+                            Why choose mypdf.site?
+                        </h1>
+                        <p className="text-lg text-blue-50 leading-relaxed">
+                            A set of PDF and image tools that run entirely in your browser. Merge, split, rotate, compress,
+                            watermark, number and edit PDFs, convert a PDF to Word (with OCR for scans), turn images into PDFs,
+                            or lay out several copies of a photo on one printable sheet, without uploading your documents anywhere.
+                        </p>
+                        <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
+                            <a href="#overview" className="inline-flex items-center justify-center gap-2 bg-white text-blue-700 font-bold py-3 px-7 rounded-xl shadow-md hover:bg-blue-50 transition-all">
+                                See all tools <ArrowRight className="w-4 h-4" />
+                            </a>
+                            <a href="#choose" className="inline-flex items-center justify-center gap-2 bg-white/10 border border-white/30 text-white font-semibold py-3 px-7 rounded-xl hover:bg-white/20 transition-all">
+                                Which tool do I need?
+                            </a>
+                        </div>
                     </div>
                 </header>
+
+
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 -mt-6 relative">
+                    {[
+                        { v: String(TOOLS.length), l: 'tools in one place' },
+                        { v: '0', l: 'files uploaded for processing' },
+                        { v: 'No', l: 'sign-up or account needed' },
+                        { v: 'Free', l: 'to use, no page limits from us' },
+                    ].map((s) => (
+                        <div key={s.l} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 text-center">
+                            <p className="text-3xl font-extrabold text-blue-600">{s.v}</p>
+                            <p className="text-xs sm:text-sm text-gray-600 mt-1">{s.l}</p>
+                        </div>
+                    ))}
+                </div>
 
 
                 <nav aria-label="On this page" className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
@@ -89,13 +128,40 @@ export default function FeaturesPage() {
                 <section id="why" className="scroll-mt-24">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {CORE_FEATURES.map((f) => (
-                            <article key={f.title} className="bg-white p-7 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+                            <article key={f.title} className="bg-white p-7 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all">
                                 <div className={`w-12 h-12 ${f.bg} ${f.fg} rounded-xl flex items-center justify-center mb-5`}>
                                     <f.icon className="w-6 h-6" />
                                 </div>
                                 <h3 className="text-lg font-bold text-gray-900 mb-2">{f.title}</h3>
                                 <p className="text-sm text-gray-600 leading-relaxed">{f.text}</p>
                             </article>
+                        ))}
+                    </div>
+                </section>
+
+
+                <section id="overview" className={sectionCls}>
+                    <SectionTitle
+                        icon={LayoutGrid}
+                        title="Tools at a glance"
+                        sub={`All ${TOOLS.length} tools in one list. Open any card to use the tool, or scroll down for full details, guides and limits.`}
+                        tone="violet"
+                    />
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {TOOLS.map((t) => (
+                            <Link
+                                key={t.name}
+                                href={t.href}
+                                className="group flex items-start gap-4 rounded-2xl border border-gray-200 p-5 hover:border-blue-300 hover:shadow-md transition-all"
+                            >
+                                <span className={`w-12 h-12 ${t.bg} ${t.fg} rounded-xl flex items-center justify-center shrink-0`}>
+                                    <t.icon className="w-6 h-6" />
+                                </span>
+                                <span className="min-w-0">
+                                    <span className="block font-bold text-gray-900 group-hover:text-blue-700">{t.name}</span>
+                                    <span className="block text-sm text-gray-600 mt-0.5 leading-snug">{t.tagline}</span>
+                                </span>
+                            </Link>
                         ))}
                     </div>
                 </section>
@@ -118,10 +184,10 @@ export default function FeaturesPage() {
                             </thead>
                             <tbody>
                                 {CHOOSER.map((c) => (
-                                    <tr key={c.goal} className="border-t border-gray-200">
+                                    <tr key={c.goal} className="border-t border-gray-200 hover:bg-blue-50/40">
                                         <td className="px-4 py-3 font-medium text-gray-900">{c.goal}</td>
                                         <td className="px-4 py-3">
-                                            <Link href={c.href} className="text-blue-600 font-semibold hover:underline">{c.tool}</Link>
+                                            <Link href={c.href} className="text-blue-600 font-semibold hover:underline whitespace-nowrap">{c.tool}</Link>
                                         </td>
                                         <td className="px-4 py-3 text-gray-600">{c.note}</td>
                                     </tr>
@@ -164,13 +230,13 @@ export default function FeaturesPage() {
                                         </ul>
                                     </div>
                                     <div className="space-y-4">
-                                        <div>
+                                        <div className="rounded-xl bg-green-50/60 border border-green-100 p-4">
                                             <h4 className="text-sm font-bold text-gray-900 mb-1">Best for</h4>
-                                            <p className="text-sm text-gray-600 leading-relaxed">{t.bestFor}</p>
+                                            <p className="text-sm text-gray-700 leading-relaxed">{t.bestFor}</p>
                                         </div>
-                                        <div>
+                                        <div className="rounded-xl bg-amber-50/70 border border-amber-100 p-4">
                                             <h4 className="text-sm font-bold text-gray-900 mb-1">Good to know</h4>
-                                            <p className="text-sm text-gray-600 leading-relaxed">{t.limits}</p>
+                                            <p className="text-sm text-gray-700 leading-relaxed">{t.limits}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -191,8 +257,8 @@ export default function FeaturesPage() {
                     />
                     <ol className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         {[
-                            { n: 1, t: 'You choose a file', d: 'When you select or drop a PDF, your browser gives the page access to that single file. The file is read into memory on your device. It is not sent anywhere.' },
-                            { n: 2, t: 'Your browser does the work', d: 'Open-source JavaScript libraries read the structure of the PDF, copy, rotate or draw on pages, extract text, and build a new document. Page previews are drawn by a PDF rendering engine in the same tab.' },
+                            { n: 1, t: 'You choose a file', d: 'When you select or drop a file, your browser gives the page access to that single file. It is read into memory on your device. It is not sent anywhere.' },
+                            { n: 2, t: 'Your browser does the work', d: 'Open-source JavaScript libraries read the structure of the PDF, copy, rotate or draw on pages, extract text, lay out sheets, and build a new document. Page previews are drawn by a PDF rendering engine in the same tab.' },
                             { n: 3, t: 'You download the result', d: 'The finished file is created as a temporary object in your browser and handed to you as a normal download. Closing the tab discards it.' },
                         ].map((s) => (
                             <li key={s.n} className="rounded-2xl bg-gray-50 border border-gray-200 p-6">
@@ -275,10 +341,11 @@ export default function FeaturesPage() {
                         icon={Users}
                         title="Who uses these tools"
                         sub="Everyday examples of how different people use the same set of tools."
+                        tone="violet"
                     />
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {USE_CASES.map((u) => (
-                            <article key={u.title} className="rounded-2xl border border-gray-200 p-6">
+                            <article key={u.title} className="rounded-2xl border border-gray-200 p-6 hover:shadow-md transition-shadow">
                                 <u.icon className="w-7 h-7 text-blue-600 mb-3" />
                                 <h3 className="font-bold text-gray-900 mb-2">{u.title}</h3>
                                 <p className="text-sm text-gray-600 leading-relaxed">{u.text}</p>
@@ -293,6 +360,7 @@ export default function FeaturesPage() {
                         icon={ShieldCheck}
                         title="Privacy and security"
                         sub="Documents often contain contracts, IDs and financial details. Here is exactly how they are treated."
+                        tone="green"
                     />
                     <ul className="space-y-3 mb-8">
                         {PRIVACY_POINTS.map((p) => (
@@ -309,7 +377,7 @@ export default function FeaturesPage() {
                         <ol className="list-decimal pl-5 space-y-1 text-sm text-gray-700 leading-relaxed">
                             <li>Open any tool on this site.</li>
                             <li>Press F12 to open developer tools and select the Network tab.</li>
-                            <li>Choose a PDF and run the tool.</li>
+                            <li>Choose a file and run the tool.</li>
                             <li>Look at the requests. You will not see your file being uploaded.</li>
                         </ol>
                     </div>
@@ -324,6 +392,7 @@ export default function FeaturesPage() {
                         icon={Info}
                         title="What these tools can and cannot do"
                         sub="No browser tool can do everything. Knowing the limits up front saves time and helps you pick the right option."
+                        tone="amber"
                     />
                     <dl className="grid grid-cols-1 md:grid-cols-2 gap-5">
                         {LIMITS.map((l) => (
@@ -375,7 +444,8 @@ export default function FeaturesPage() {
                     <SectionTitle
                         icon={Wrench}
                         title="Troubleshooting common problems"
-                        sub="Most issues come from very large files, protected files, older font encodings or limited device memory. These fixes solve the majority."
+                        sub="Most issues come from very large files, protected files, older font encodings, print scaling or limited device memory. These fixes solve the majority."
+                        tone="amber"
                     />
                     <dl className="space-y-5">
                         {TROUBLESHOOTING.map((t) => (
@@ -428,10 +498,26 @@ export default function FeaturesPage() {
                 </section>
 
 
+                <section className="rounded-3xl bg-white border border-gray-100 shadow-sm p-6 sm:p-8 flex flex-col sm:flex-row items-start gap-4">
+                    <span className="w-11 h-11 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+                        <UserCheck className="w-6 h-6" />
+                    </span>
+                    <div>
+                        <h2 className="text-lg font-bold text-gray-900">About this help center</h2>
+                        <p className="text-sm text-gray-600 mt-1 leading-relaxed">
+                            This page is written and maintained by the mypdf.site team, and it is updated whenever a tool changes.
+                            It describes what each tool really does, including the limits, so you can decide before you start.
+                            Learn more <Link href="/about" className="text-blue-600 underline">about the project</Link>, or{' '}
+                            <Link href="/contact" className="text-blue-600 underline">tell us</Link> if something here is wrong or unclear.
+                        </p>
+                    </div>
+                </section>
+
+
                 <section className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-3xl p-8 sm:p-12 text-center text-white shadow-xl">
                     <h2 className="text-3xl font-extrabold mb-4">Ready to manage your documents?</h2>
                     <p className="text-blue-100 max-w-xl mx-auto mb-8 text-sm sm:text-base">
-                        Go back to the homepage and start merging, editing, converting or compressing your PDF files right now.
+                        Go back to the homepage and start merging, editing, converting, compressing or laying out your files right now.
                     </p>
                     <Link
                         href="/"

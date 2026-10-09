@@ -1,6 +1,7 @@
 export type CategoryId = 'general' | 'tools' | 'convert' | 'files' | 'privacy' | 'trouble' | 'support';
 
 
+
 export interface FaqItem {
     id: string;
     category: CategoryId;
@@ -9,15 +10,17 @@ export interface FaqItem {
 }
 
 
+
 export const CATEGORIES: { id: CategoryId; label: string; description: string }[] = [
     { id: 'general', label: 'General', description: 'What the site offers and how it works.' },
-    { id: 'tools', label: 'Using the tools', description: 'Merge, split, rotate, watermark, page numbers and image conversion.' },
+    { id: 'tools', label: 'Using the tools', description: 'Merge, split, rotate, watermark, page numbers, photo sheets and image conversion.' },
     { id: 'convert', label: 'Convert & edit', description: 'PDF to Word, OCR for scans, editing text, compressing and flattening.' },
     { id: 'files', label: 'Files & limits', description: 'File sizes, quality, languages, passwords and offline use.' },
     { id: 'privacy', label: 'Privacy & security', description: 'How your documents are handled and how to check it yourself.' },
     { id: 'trouble', label: 'Troubleshooting', description: 'Fixes for the most common problems.' },
     { id: 'support', label: 'Support & site', description: 'Feedback, donations and how the site is funded.' },
 ];
+
 
 
 export const FAQ_ITEMS: FaqItem[] = [
@@ -29,12 +32,12 @@ export const FAQ_ITEMS: FaqItem[] = [
     {
         id: 'what-can-i-do', category: 'general',
         question: 'What can I do with mypdf.site?',
-        answer: 'You can merge PDFs, split or extract pages, rotate and delete pages, compress a PDF, add text or image watermarks, add page numbers, edit text and annotate a PDF, convert images to a PDF, convert PDF pages to JPG, PNG or WebP images, and convert a PDF to an editable Word document, with OCR for scanned files.',
+        answer: 'You can merge PDFs, split or extract pages, rotate and delete pages, compress a PDF, add text or image watermarks, add page numbers, edit text and annotate a PDF, repeat an image or a single-page PDF on a printable sheet, convert images to a PDF, convert PDF pages to JPG, PNG or WebP images, and convert a PDF to an editable Word document, with OCR for scanned files.',
     },
     {
         id: 'which-tool', category: 'general',
         question: 'Which tool should I use for my task?',
-        answer: 'To combine files use Merge PDF. To remove or pull out pages use Split PDF. To fix sideways pages use Rotate PDF. To make a file smaller use Compress PDF. To label or brand pages use Add Watermark. To number pages use Add Page Numbers. To fix a typo, highlight or sign use Edit PDF. To work on a PDF in Word use PDF to Word. The Features page has a table that matches goals to tools.',
+        answer: 'To combine files use Merge PDF. To remove or pull out pages use Split PDF. To fix sideways pages use Rotate PDF. To make a file smaller use Compress PDF. To label or brand pages use Add Watermark. To number pages use Add Page Numbers. To fix a typo, highlight or sign use Edit PDF. To print several copies of one photo on a page use Image Sheet Maker. To work on a PDF in Word use PDF to Word. The Features page has a table that matches goals to tools.',
     },
     {
         id: 'install', category: 'general',
@@ -56,6 +59,7 @@ export const FAQ_ITEMS: FaqItem[] = [
         question: 'Can I use mypdf.site on my mobile phone?',
         answer: 'Yes. The site is responsive and works with touch. Phones have less memory than computers, so very large PDFs, OCR and PDF to Word conversions are easier to handle on a computer.',
     },
+
 
 
     {
@@ -89,9 +93,39 @@ export const FAQ_ITEMS: FaqItem[] = [
         answer: 'You can use 1 2 3, i ii iii, I II III, a b c or A B C, in formats such as Page 1 of N, 1 / N or - 1 -, or write your own template. You can also choose the start number, number only a range of pages, skip the cover page and mirror the position on even pages.',
     },
     {
+        id: 'sheet-copies', category: 'tools',
+        question: 'How do I print several copies of one photo on a single page?',
+        answer: 'Open Image Sheet Maker, upload the image, choose Copies per sheet, pick a number such as 4 or 8, keep the page on A4, and save the PDF. The tool picks the rows and columns that give the largest pictures. Print the PDF at Actual size or 100% so the copies keep their exact size.',
+    },
+    {
+        id: 'sheet-modes', category: 'tools',
+        question: 'What layouts does the Image Sheet Maker offer?',
+        answer: 'Three. Copies per sheet repeats the image a number of times you choose, from 1 to 200. Custom grid lets you set the rows and columns yourself. Fixed photo size fits as many photos of an exact size as the page allows, and can make extra sheets if you ask for more copies than fit on one page.',
+    },
+    {
+        id: 'sheet-passport', category: 'tools',
+        question: 'Can I make a passport photo sheet?',
+        answer: 'Yes. Choose Fixed photo size, pick a preset such as 35 × 45 mm or 2 × 2 in, and the tool fits as many photos as the page allows. Use a photo that is already cropped to the right proportions, and check the requirements of the office that will receive it.',
+    },
+    {
+        id: 'sheet-pdf-input', category: 'tools',
+        question: 'Can I upload a PDF to the Image Sheet Maker?',
+        answer: 'Yes, but only a PDF with a single page. The page is drawn as a sharp picture and repeated on the sheet. A PDF with several pages is rejected, so use Split PDF to extract the page you need first.',
+    },
+    {
+        id: 'sheet-options', category: 'tools',
+        question: 'What page and print options can I change in the Image Sheet Maker?',
+        answer: 'You can choose A3, A4, A5, A6, US Letter, US Legal, photo paper sizes or a custom page size in millimetres, centimetres or inches, plus the orientation, margin and gap. You can also choose how the picture fits each box (whole image, crop to fill or stretch), rotate it, set a background color, and draw solid or dashed cut lines.',
+    },
+    {
+        id: 'sheet-save', category: 'tools',
+        question: 'Which file formats can I save a photo sheet in?',
+        answer: 'PDF, PNG or JPG at 150, 200, 300 or 600 DPI. A PDF contains every sheet. PNG and JPG contain the first sheet only, which is enough when all sheets are identical. Use 300 DPI for printing.',
+    },
+    {
         id: 'jpg-to-pdf-formats', category: 'tools',
         question: 'Which image types can I turn into a PDF?',
-        answer: 'JPG, PNG, WebP, GIF, BMP and AVIF. You can reorder and rotate images, then choose the page size, orientation, margin and quality.',
+        answer: 'JPG, PNG, WebP, GIF, BMP and AVIF. You can reorder and rotate images, then choose the page size, orientation, margin and quality. The same image types can be used in the Image Sheet Maker.',
     },
     {
         id: 'pdf-to-jpg-dpi', category: 'tools',
@@ -103,6 +137,7 @@ export const FAQ_ITEMS: FaqItem[] = [
         question: 'Should I choose JPG, PNG or WebP?',
         answer: 'Choose PNG for pages with sharp text and line art because it is lossless. Choose JPG or WebP for pages that are mostly photographs, where a smaller file matters more than perfect edges.',
     },
+
 
 
     {
@@ -197,6 +232,7 @@ export const FAQ_ITEMS: FaqItem[] = [
     },
 
 
+
     {
         id: 'file-size', category: 'files',
         question: 'What is the maximum file size?',
@@ -205,7 +241,7 @@ export const FAQ_ITEMS: FaqItem[] = [
     {
         id: 'quality-loss', category: 'files',
         question: 'Will my pages lose quality?',
-        answer: 'Merge, split, rotate, watermark and page-number tools copy your original pages into the new file without re-rendering them, so text stays sharp and selectable. PDF to JPG, Page images mode in PDF to Word and Secure flatten in Edit PDF deliberately turn pages into images, and JPG to PDF may recompress images if you choose a lower quality setting.',
+        answer: 'Merge, split, rotate, watermark and page-number tools copy your original pages into the new file without re-rendering them, so text stays sharp and selectable. PDF to JPG, Page images mode in PDF to Word, Image Sheet Maker and Secure flatten in Edit PDF deliberately turn pages into images, and JPG to PDF may recompress images if you choose a lower quality setting.',
     },
     {
         id: 'password', category: 'files',
@@ -216,6 +252,11 @@ export const FAQ_ITEMS: FaqItem[] = [
         id: 'languages', category: 'files',
         question: 'Can I add text in languages other than English?',
         answer: 'In Edit PDF, yes: choose the Any language font and the text is saved as a sharp image. Text watermarks and page numbers use the standard fonts built into the PDF format, which cover Latin characters, so for other scripts create the text as a PNG image and use the image watermark option.',
+    },
+    {
+        id: 'heic', category: 'files',
+        question: 'Can I use HEIC photos from an iPhone?',
+        answer: 'Most browsers cannot open HEIC files, so the image tools may show an error. Change the camera format to Most Compatible, or convert the photo to JPG or PNG first, then upload it.',
     },
     {
         id: 'offline', category: 'files',
@@ -232,6 +273,7 @@ export const FAQ_ITEMS: FaqItem[] = [
         question: 'Which programs can open the Word file?',
         answer: 'The file is a standard .docx document. It opens in Microsoft Word and in other programs that support the format, such as LibreOffice Writer and Google Docs, though fonts and spacing can differ slightly between programs.',
     },
+
 
 
     {
@@ -264,6 +306,7 @@ export const FAQ_ITEMS: FaqItem[] = [
         question: 'How do I remove personal details from a PDF before sharing it?',
         answer: 'Open Edit PDF, cover each detail with the Whiteout tool, check every page, and turn on Secure flatten before saving. Then try selecting text where the details were in another PDF viewer to confirm nothing remains. Also check for details in other places such as headers, footers and the file name.',
     },
+
 
 
     {
@@ -316,6 +359,22 @@ export const FAQ_ITEMS: FaqItem[] = [
         question: 'I covered text, but I can still select it in another viewer.',
         answer: 'Covering only hides the text visually. Save again with Secure flatten turned on to remove it from the file permanently.',
     },
+    {
+        id: 'sheet-multipage', category: 'trouble',
+        question: 'The Image Sheet Maker says my PDF has several pages.',
+        answer: 'The tool accepts only a PDF with a single page. Open Split PDF, extract the page you need into its own file, and upload that file instead.',
+    },
+    {
+        id: 'sheet-blurry', category: 'trouble',
+        question: 'My printed photos look blurry.',
+        answer: 'Check the print resolution shown under the preview in the Image Sheet Maker. Below about 150 DPI the image has too few pixels for that size, so use a larger original, or choose fewer and smaller copies. A PDF page is drawn as a picture, so enlarging a small page also looks soft.',
+    },
+    {
+        id: 'sheet-wrong-size', category: 'trouble',
+        question: 'The printed copies are smaller or larger than expected.',
+        answer: 'Your print dialog is probably scaling the page. Choose Actual size or 100% instead of Fit to page, and make sure the paper size in the dialog matches the sheet you created.',
+    },
+
 
 
     {

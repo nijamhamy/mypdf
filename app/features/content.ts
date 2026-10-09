@@ -1,5 +1,5 @@
 import {
-    Files, Scissors, RotateCw, Stamp, Hash, Image as ImageIcon, FileText, Minimize2, FileOutput, Type,
+    Files, Scissors, RotateCw, Stamp, Hash, Image as ImageIcon, FileText, Minimize2, FileOutput, Type, LayoutGrid,
     ShieldCheck, Zap, Cpu, Smartphone, Wallet, Layers, Languages, Pencil, BadgeCheck,
     GraduationCap, Briefcase, Scale, Camera, Receipt, Users,
     type LucideIcon,
@@ -23,7 +23,7 @@ export const CORE_FEATURES: Feature[] = [
     {
         icon: ShieldCheck, bg: 'bg-red-50', fg: 'text-red-600',
         title: 'Your files stay on your device',
-        text: 'Every tool runs inside your browser. When you pick a PDF, the file is read into your device’s memory, edited there, and saved back to your device. It is not sent to our servers, so there is no upload step to wait for and no copy left behind.',
+        text: 'Every tool runs inside your browser. When you pick a file, it is read into your device’s memory, edited there, and saved back to your device. It is not sent to our servers, so there is no upload step to wait for and no copy left behind.',
     },
     {
         icon: Zap, bg: 'bg-blue-50', fg: 'text-blue-600',
@@ -42,8 +42,8 @@ export const CORE_FEATURES: Feature[] = [
     },
     {
         icon: Pencil, bg: 'bg-orange-50', fg: 'text-orange-600',
-        title: 'Edit, convert and organize in one place',
-        text: 'Besides merging, splitting and rotating, you can edit text, highlight, whiteout and draw on a PDF, convert a PDF to an editable Word document, or turn pages into images. You do not need a different website for each step.',
+        title: 'Edit, convert and print in one place',
+        text: 'Besides merging, splitting and rotating, you can edit text, highlight, whiteout and draw on a PDF, convert a PDF to an editable Word document, turn pages into images, or lay out several copies of a photo on one sheet ready to print.',
     },
     {
         icon: Languages, bg: 'bg-sky-50', fg: 'text-sky-600',
@@ -77,6 +77,8 @@ export const CHOOSER: Chooser[] = [
     { goal: 'Number the pages of a report', tool: 'Add Page Numbers', href: '/page-numbers', note: 'Six positions, roman numerals, Page 1 of N.' },
     { goal: 'Fix a typo, add a note, highlight or sign', tool: 'Edit PDF', href: '/edit-pdf', note: 'Click text to edit it, or add text, shapes, drawings and images.' },
     { goal: 'Hide sensitive text permanently', tool: 'Edit PDF', href: '/edit-pdf', note: 'Cover the text with Whiteout, then save with Secure flatten.' },
+    { goal: 'Print 2, 4 or 8 copies of one photo on one page', tool: 'Image Sheet Maker', href: '/image-sheet', note: 'Pick copies per sheet or a custom grid, then save a PDF.' },
+    { goal: 'Make a passport photo sheet', tool: 'Image Sheet Maker', href: '/image-sheet', note: 'Choose a photo size preset and fit as many as the page allows.' },
     { goal: 'Turn photos or scans into one PDF', tool: 'JPG to PDF', href: '/jpg-to-pdf', note: 'Reorder, rotate and choose page size and quality.' },
     { goal: 'Use a PDF page as a picture', tool: 'PDF to JPG', href: '/pdf-to-jpg', note: 'JPG, PNG or WebP at 72–300 DPI.' },
     { goal: 'Edit a PDF in Microsoft Word', tool: 'PDF to Word', href: '/pdf-to-word', note: 'Editable text, bordered tables and images.' },
@@ -180,6 +182,20 @@ export const TOOLS: Tool[] = [
         ],
         bestFor: 'Fixing a typo or date, adding a note or signature, highlighting key lines for review, or covering personal details before sharing.',
         limits: 'Editing replaces one line at a time and cannot reflow a whole paragraph. Replacement text uses a standard font, so it may look slightly different from the original. Covered text stays inside the file unless you use Secure flatten, which makes the saved PDF image-only.',
+    },
+    {
+        name: 'Image Sheet Maker', href: '/image-sheet', icon: LayoutGrid, bg: 'bg-cyan-50', fg: 'text-cyan-600',
+        tagline: 'Repeat one image or PDF page on a printable sheet.',
+        description: 'Upload one image, or a PDF with a single page, and place it on a page as many times as you need. Choose copies per sheet, a custom grid of rows and columns, or a fixed photo size such as a passport photo, and let the tool fit as many as the page allows. A live preview shows the sheet before you save it.',
+        features: [
+            'Copies per sheet (1 to 200) with the best rows and columns picked automatically',
+            'Custom grid of rows and columns, or a fixed photo size with presets such as 35 × 45 mm, 2 × 2 in and 4 × 6 in',
+            'A3, A4, A5, A6, Letter, Legal, photo paper or a custom page size, in millimetres, centimetres or inches',
+            'Margin, gap, fit (whole image, crop to fill or stretch), rotation, background color and solid or dashed cut lines',
+            'Save as PDF with every sheet, or as PNG or JPG of the first sheet, at 150 to 600 DPI',
+        ],
+        bestFor: 'Printing passport or ID photo sheets, labels, stickers, stamps or several copies of a document page on a single piece of paper.',
+        limits: 'Only a PDF with exactly one page is accepted; use Split PDF to extract a page first. A PDF page is drawn as a picture, so very small images enlarged on the sheet can look blurry, and the tool shows the effective print resolution. PNG and JPG save the first sheet only. Print at Actual size or 100% so the copies keep their exact size.',
     },
     {
         name: 'JPG to PDF', href: '/jpg-to-pdf', icon: FileText, bg: 'bg-purple-50', fg: 'text-purple-600',
@@ -339,6 +355,24 @@ export const GUIDES: Guide[] = [
         ],
     },
     {
+        id: 'how-to-make-photo-sheet', title: 'How to put several copies of an image on one page', href: '/image-sheet',
+        intro: 'Use this for passport photos, labels, stickers, or any time you want the same picture repeated on one sheet of paper.',
+        steps: [
+            'Open the Image Sheet Maker and choose your image, or a PDF that has a single page.',
+            'Choose a layout. Copies per sheet repeats the image a set number of times, Custom grid uses rows and columns you choose, and Fixed photo size fits as many photos of an exact size as the page allows.',
+            'Set the paper size, margin, gap, fit and cut lines. The preview updates as you change each option.',
+            'Check the print resolution message under the preview. It should say good for printing.',
+            'Choose PDF, PNG or JPG, then click Create and download your sheet.',
+        ],
+        tips: [
+            'For a passport photo sheet, upload a photo that is already cropped to the correct proportions, then pick the matching size preset.',
+            'Keep a small gap and turn on cut lines to make cutting easier.',
+            'Print at Actual size or 100% in your print dialog. Fit to page changes the real size of each copy.',
+            'Use Whole image to avoid cropping, or Fill the box if you want every box completely filled.',
+            'A multi-page PDF is not accepted. Use Split PDF to extract the page you need first.',
+        ],
+    },
+    {
         id: 'how-to-convert-jpg-to-pdf', title: 'How to convert images to PDF', href: '/jpg-to-pdf',
         intro: 'Use this to turn photos and scans into a single document.',
         steps: [
@@ -394,7 +428,7 @@ export const USE_CASES: UseCase[] = [
     { icon: Briefcase, title: 'Freelancers and small businesses', text: 'Merge quotations and terms into one proposal, add your logo as a watermark, correct a date or amount with the editor, and send a single tidy file rather than a folder of attachments.' },
     { icon: Receipt, title: 'Accounting and invoicing', text: 'Join the month’s invoices, add page numbers to a statement, move a bordered table into Word, and extract just the pages a client needs without exposing the rest of the file.' },
     { icon: Scale, title: 'Legal and compliance', text: 'Number bundles consistently, mark documents as CONFIDENTIAL or DRAFT, cover personal details before sharing, and keep sensitive files on your own device while you work on them.' },
-    { icon: Camera, title: 'Photographers and designers', text: 'Export PDF pages as high-resolution PNG or JPG for portfolios, and assemble image sets into a presentation-ready PDF.' },
+    { icon: Camera, title: 'Photographers, crafters and designers', text: 'Export PDF pages as high-resolution PNG or JPG, lay out passport photos, labels or stickers on a printable sheet, and assemble image sets into a presentation-ready PDF.' },
     { icon: Users, title: 'Teachers and offices', text: 'Split a scanned stack into one file per student, fix sideways scans in seconds, turn a scanned worksheet into editable Word text, and prepare handouts for printing.' },
 ];
 
@@ -403,6 +437,7 @@ export const LIMITS: Limit[] = [
     { area: 'Merge, split, rotate, watermark and page numbers', text: 'These tools copy your original pages into a new file, so text stays selectable and images keep their quality. They cannot open password-protected files.' },
     { area: 'Compress PDF', text: 'It optimizes the file structure and does not recompress images. Files built mostly from photos or scans may stay almost the same size.' },
     { area: 'Edit PDF', text: 'Existing text is edited one line at a time by covering the original and placing new text on top. The original text remains inside the file unless you save with Secure flatten, which converts pages to images. Edit text is not available on rotated pages.' },
+    { area: 'Image Sheet Maker', text: 'It accepts an image or a PDF with exactly one page. A PDF page is drawn as a picture, so enlarging a small image can look blurry; the tool shows the effective print resolution. PNG and JPG downloads contain the first sheet only. HEIC photos are not supported by most browsers, so convert them to JPG or PNG first.' },
     { area: 'Text in other scripts when editing or stamping', text: 'Standard PDF fonts cover Latin characters. In Edit PDF, text in other scripts is saved as a sharp image so it displays correctly, which means that text is not selectable. The watermark tool uses standard fonts only, so use its image option for other scripts.' },
     { area: 'PDF to Word', text: 'The result is an approximation. Headings, paragraphs, bullets, bordered tables and images are rebuilt. Tables without borders, merged cells, multi-column layouts, text colors, shading and drawings are not recreated.' },
     { area: 'Older font encodings', text: 'Some PDFs, including many older Tamil and Devanagari documents, store text as Latin letters that only look correct in a special font. No converter can recover the real text from the file itself, so use OCR or Page images for these.' },
@@ -439,6 +474,9 @@ export const TROUBLESHOOTING: { problem: string; fix: string }[] = [
     { problem: 'OCR is slow or fails to start the first time', fix: 'The first run downloads the language data, which needs an internet connection and a little time. Try again with fewer pages, check your connection, and make sure you chose the right language.' },
     { problem: 'Edited text looks slightly different from the original', fix: 'Replacement text uses a standard font. Adjust the size, color and bold or italic in the options bar, or choose another font family to get closer.' },
     { problem: 'I covered text in Edit PDF but it can still be selected in another viewer', fix: 'Covering hides text visually but keeps it in the file. Save again with Secure flatten turned on to remove it permanently.' },
+    { problem: 'Image Sheet Maker says my PDF has several pages', fix: 'Only a PDF with a single page is accepted. Open Split PDF, extract the page you need, and upload that file instead.' },
+    { problem: 'The printed copies are smaller or larger than expected', fix: 'Your print dialog is probably scaling the page. Choose Actual size or 100% instead of Fit to page, and check that the paper size in the dialog matches the sheet.' },
+    { problem: 'My printed photos look blurry', fix: 'The image has too few pixels for the size you chose. The Image Sheet Maker shows the print resolution; below about 150 DPI, use a larger original or fewer, smaller copies.' },
 ];
 
 
@@ -459,6 +497,7 @@ export const SUPPORTED: { tool: string; input: string; output: string }[] = [
     { tool: 'Add Watermark', input: 'PDF, plus PNG or JPG for logos', output: 'PDF' },
     { tool: 'Add Page Numbers', input: 'PDF', output: 'PDF' },
     { tool: 'Edit PDF', input: 'PDF, plus any common image for insertion', output: 'PDF' },
+    { tool: 'Image Sheet Maker', input: 'One image, or a PDF with a single page', output: 'PDF, or PNG or JPG of the first sheet' },
     { tool: 'JPG to PDF', input: 'JPG, PNG, WebP, GIF, BMP, AVIF', output: 'PDF' },
     { tool: 'PDF to JPG', input: 'PDF', output: 'JPG, PNG or WebP, or ZIP of images' },
     { tool: 'PDF to Word', input: 'PDF (text-based or scanned)', output: 'Word document (.docx)' },
@@ -468,15 +507,18 @@ export const SUPPORTED: { tool: string; input: string; output: string }[] = [
 export const FAQS: Faq[] = [
     { q: 'Are my uploaded files stored anywhere?', a: 'No. Nothing is uploaded for processing. Your files are opened and edited inside your own browser, and the finished file is created on your device. We do not receive, view or keep copies of your documents.' },
     { q: 'How can I check that my files really stay on my device?', a: 'Open your browser’s developer tools (press F12), go to the Network tab, and then run any tool. You will see that no request carries your file to a server. The only extra download you may see is OCR language data the first time you use that feature.' },
-    { q: 'What file formats are supported?', a: 'PDF is supported by every tool. Images in JPG, PNG, WebP, GIF, BMP and AVIF can be turned into a PDF, and PDF pages can be saved as JPG, PNG or WebP. PDF to Word creates .docx files. Logos for watermarks can be PNG or JPG.' },
+    { q: 'What file formats are supported?', a: 'PDF is supported by every PDF tool. Images in JPG, PNG, WebP, GIF, BMP and AVIF can be turned into a PDF or placed on a sheet, and PDF pages can be saved as JPG, PNG or WebP. PDF to Word creates .docx files. Logos for watermarks can be PNG or JPG.' },
     { q: 'Is mypdf.site completely free?', a: 'Yes. The tools are free to use, with no sign-up and no limits set by us. The site is supported by advertising and optional donations.' },
     { q: 'Is there a file size limit?', a: 'We do not set one. The practical limit is your device’s memory. Desktop computers usually handle PDFs of several hundred pages, while phones are more comfortable with smaller files. Exporting images from PDF is capped at around 25 megapixels per page to avoid crashes.' },
     { q: 'Can I use it on my mobile phone?', a: 'Yes. The site is responsive and designed for touch. For very large files, a computer will be faster and more reliable.' },
     { q: 'Will merging or splitting reduce the quality of my pages?', a: 'No. Merge, split, rotate, watermark and page-number tools copy your original pages into the new file without re-rendering them, so text stays selectable and images keep their original quality.' },
-    { q: 'Why is the text in my new PDF still selectable?', a: 'Because the pages are copied, not turned into pictures. Only PDF to JPG, Page images mode in PDF to Word, and Secure flatten in Edit PDF deliberately turn pages into images.' },
+    { q: 'Why is the text in my new PDF still selectable?', a: 'Because the pages are copied, not turned into pictures. Only PDF to JPG, Page images mode in PDF to Word, Image Sheet Maker, and Secure flatten in Edit PDF deliberately turn pages into images.' },
     { q: 'Can I merge only some pages from each file?', a: 'Yes. In the Merge tool, type a range such as 1-3, 5 for a file, or open the file and click the thumbnails of the pages you want.' },
     { q: 'Can I reorder files before merging?', a: 'Yes. Drag files by their handle, use the up and down arrows, or sort them by name.' },
     { q: 'Does it work with password-protected PDFs?', a: 'Files that need a password to open are not supported. Remove the password in the program that created the file, then try again.' },
+    { q: 'How do I print several copies of one photo on a single page?', a: 'Open Image Sheet Maker, upload the image, choose Copies per sheet, pick a number such as 4 or 8, keep the page on A4, and save the PDF. Print it at Actual size or 100%.' },
+    { q: 'Can I make a passport photo sheet?', a: 'Yes. Choose Fixed photo size, pick a preset such as 35 × 45 mm or 2 × 2 in, and the tool fits as many photos as the page allows. Use a photo that is already cropped to the right proportions, and check the requirements of the office that will receive it.' },
+    { q: 'Can I upload a PDF to the Image Sheet Maker?', a: 'Yes, but only a PDF with a single page. The page is drawn as a sharp picture and repeated on the sheet. For a longer PDF, use Split PDF to extract the page you need first.' },
     { q: 'Can I change the existing text in a PDF?', a: 'Yes, with Edit PDF. Click a line, type the new text, and the original is covered and replaced. It works one line at a time and uses a standard replacement font, so it suits corrections such as dates, names and typos rather than rewriting whole pages.' },
     { q: 'Is the original text really removed when I edit or cover it?', a: 'Not by default. Covering hides the original but it stays inside the file. To remove it permanently, turn on Secure flatten when saving. The saved PDF then consists of page images, so its text can no longer be selected.' },
     { q: 'Will the Word file look exactly like my PDF?', a: 'Not always. PDF to Word rebuilds headings, paragraphs, bullets, bordered tables and images, but tables without borders, merged cells, multi-column layouts and text colors are not recreated. Page images mode keeps the exact look but the text is not editable.' },
@@ -498,10 +540,13 @@ export const GLOSSARY: Term[] = [
     { term: 'PDF', def: 'Portable Document Format. A file type designed to look the same on every device, whatever software opened it.' },
     { term: 'Page range', def: 'A way to name pages. “1-3, 5” means pages 1, 2, 3 and 5.' },
     { term: 'DPI', def: 'Dots per inch. A higher number gives a sharper image and a bigger file.' },
+    { term: 'Effective resolution', def: 'How many pixels of the picture land in each inch of paper at the size you chose. Around 300 is sharp, and below about 150 print starts to look soft.' },
     { term: 'Rasterize', def: 'To turn a page into a picture made of pixels, as the PDF to JPG tool does.' },
     { term: 'Thumbnail', def: 'A small preview image of a page, used to choose pages quickly.' },
     { term: 'Opacity', def: 'How solid something looks. 100% is fully solid and lower values show the page underneath.' },
     { term: 'Tile', def: 'A pattern in which a watermark repeats across the page.' },
+    { term: 'Cut lines', def: 'Thin outlines drawn around each copy on a printed sheet so it is easy to cut along them.' },
+    { term: 'Fit (contain, cover, stretch)', def: 'How a picture fills its box. Contain shows the whole picture, cover fills the box and crops the edges, and stretch fills the box by changing the proportions.' },
     { term: 'ZIP file', def: 'A single archive that holds several files, used when a tool creates more than one output.' },
     { term: 'Client-side processing', def: 'Work done inside your own browser or device instead of on a remote server.' },
     { term: 'Metadata', def: 'Hidden information stored inside a PDF, such as its title and author.' },
@@ -520,8 +565,9 @@ export const GLOSSARY: Term[] = [
 
 export const TOC: { id: string; label: string }[] = [
     { id: 'why', label: 'Why use it' },
+    { id: 'overview', label: 'Tools at a glance' },
     { id: 'choose', label: 'Which tool?' },
-    { id: 'tools', label: 'All tools' },
+    { id: 'tools', label: 'Tool details' },
     { id: 'how-it-works', label: 'How it works' },
     { id: 'guides', label: 'Step-by-step guides' },
     { id: 'use-cases', label: 'Who uses it' },

@@ -1,16 +1,22 @@
 import {
-    Files, Scissors, RotateCw, Stamp, Hash, Image as ImageIcon, FileText, Minimize2, FileOutput, Type,
+    Files, Scissors, RotateCw, Stamp, Hash, Image as ImageIcon, FileText, Minimize2, FileOutput, Type, LayoutGrid,
     type LucideIcon,
 } from 'lucide-react';
 
 
+
+
 export type ToolCategory = 'convert' | 'organize' | 'edit' | 'optimize';
+
+
 
 
 export interface ToolFaq {
     q: string;
     a: string;
 }
+
+
 
 
 export interface ToolInfo {
@@ -31,12 +37,16 @@ export interface ToolInfo {
 }
 
 
+
+
 export const CATEGORY_LABELS: Record<ToolCategory, string> = {
     convert: 'Convert',
     organize: 'Organize',
     edit: 'Edit',
     optimize: 'Optimize',
 };
+
+
 
 
 export const TOOLS: ToolInfo[] = [
@@ -145,6 +155,23 @@ export const TOOLS: ToolInfo[] = [
             { q: 'Can I change the existing text in a PDF?', a: 'Yes. Click a line of text, and the tool covers the original and places editable text on top. The original text stays hidden underneath unless you turn on Secure flatten, which turns pages into images.' },
             { q: 'Does it support Arabic, Tamil and other languages?', a: 'Yes. New text in any script is saved as a sharp image so it displays correctly. Latin text is saved as real PDF text.' },
             { q: 'How do I permanently remove sensitive text?', a: 'Cover it with a whiteout box and turn on Secure flatten before saving. This removes the text underneath, but the saved PDF becomes images.' },
+        ],
+    },
+    {
+        id: 'image-sheet', title: 'Image Sheet Maker', href: '/image-sheet', category: 'edit',
+        short: 'Repeat one image or a single-page PDF 2, 4, 8 or any number of times on an A4 sheet, or fill a page with passport-size photos.',
+        points: ['Copies per sheet, custom grid or fixed photo size', 'A4, Letter and other paper sizes with margins and cut lines', 'Save as PDF, PNG or JPG at up to 600 DPI'],
+        keywords: ['photo sheet', 'passport photo sheet', 'repeat image on a4', 'multiple copies on one page', 'print photos on a4', 'image grid pdf', 'sticker sheet', 'repeat pdf page on a4'],
+        icon: LayoutGrid, iconColor: 'text-cyan-500', cardBg: 'bg-cyan-50 hover:bg-cyan-100 border-cyan-200',
+        badge: 'Advanced',
+        seoTitle: 'Image Sheet Maker: Repeat a Photo on A4',
+        seoDescription: 'Put one image or a single-page PDF on a page 2, 4, 8 or more times. Passport photo sheets, custom sizes, cut lines, PDF, PNG or JPG. Free, runs in your browser.',
+        faqs: [
+            { q: 'Is my image uploaded to a server?', a: 'No. The sheet is built in your browser, so your image or PDF stays on your device.' },
+            { q: 'Can I upload a PDF instead of an image?', a: 'Yes, but only a PDF with a single page. The page is drawn as a sharp picture and repeated on the sheet. For a multi-page PDF, use Split PDF to extract the page you need first.' },
+            { q: 'How do I print four copies of a photo on one A4 page?', a: 'Upload the image, choose Copies per sheet, select 4, keep the page on A4, and save the PDF. Print it at 100% or Actual size.' },
+            { q: 'Can I make a passport photo sheet?', a: 'Yes. Choose Fixed photo size, pick a preset such as 35 × 45 mm or 2 × 2 in, and the tool fits as many photos as the page allows. Use your own correctly sized and cropped photo as the source.' },
+            { q: 'Why does my printed photo look blurry?', a: 'The tool shows the effective print resolution. Below about 150 DPI, the image has too few pixels for that size, so use a larger original or fewer, bigger copies.' },
         ],
     },
     {

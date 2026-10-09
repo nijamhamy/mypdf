@@ -5,12 +5,14 @@ import FaqClient from './FaqClient';
 import { FAQ_ITEMS } from './faq-data';
 
 
+
 export const metadata: Metadata = {
     title: 'Frequently Asked Questions | mypdf.site',
     description:
-        'Answers about mypdf.site: privacy, file limits, merging, splitting, rotating, compressing, watermarking, page numbers, editing PDFs, PDF to Word with OCR, and converting between PDF and images. Search and browse by topic.',
+        'Answers about mypdf.site: privacy, file limits, merging, splitting, rotating, compressing, watermarking, page numbers, editing PDFs, printable photo sheets, PDF to Word with OCR, and converting between PDF and images. Search and browse by topic.',
     alternates: { canonical: '/faq' },
 };
+
 
 
 const TOOL_LINKS: { href: string; label: string }[] = [
@@ -21,10 +23,12 @@ const TOOL_LINKS: { href: string; label: string }[] = [
     { href: '/watermark-pdf', label: 'Add Watermark' },
     { href: '/page-numbers', label: 'Add Page Numbers' },
     { href: '/edit-pdf', label: 'Edit PDF' },
+    { href: '/image-sheet', label: 'Image Sheet Maker' },
     { href: '/jpg-to-pdf', label: 'JPG to PDF' },
     { href: '/pdf-to-jpg', label: 'PDF to JPG' },
     { href: '/pdf-to-word', label: 'PDF to Word' },
 ];
+
 
 
 export default function FAQPage() {
@@ -37,6 +41,7 @@ export default function FAQPage() {
             acceptedAnswer: { '@type': 'Answer', text: f.answer },
         })),
     };
+
 
 
     return (
@@ -54,9 +59,10 @@ export default function FAQPage() {
                         Frequently Asked Questions
                     </h1>
                     <p className="text-lg text-gray-600 max-w-xl mx-auto">
-                        Search or browse {FAQ_ITEMS.length} answers about privacy, file limits, converting and editing PDFs, and every tool on mypdf.site.
+                        Search or browse {FAQ_ITEMS.length} answers about privacy, file limits, converting and editing PDFs, printable photo sheets, and every tool on mypdf.site.
                     </p>
                 </header>
+
 
 
                 <section aria-labelledby="browse-tools" className="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 sm:p-6">
@@ -83,7 +89,9 @@ export default function FAQPage() {
                 </section>
 
 
+
                 <FaqClient />
+
 
 
                 <p className="text-center text-xs text-gray-500">
