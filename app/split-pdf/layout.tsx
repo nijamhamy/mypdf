@@ -1,15 +1,27 @@
 import type { ReactNode } from 'react';
-import { toolMetadata, toolJsonLd } from '@/lib/seo';
+import type { Metadata } from 'next';
+import {
+    toolMetadata,
+    toolJsonLd,
+    jsonLdToScript,
+} from '@/lib/seo';
 
-export const metadata = toolMetadata('split-pdf');
+export const metadata: Metadata = toolMetadata('split-pdf');
 
 export default function Layout({ children }: { children: ReactNode }) {
+    const jsonLd = toolJsonLd('split-pdf');
+
     return (
         <>
-            <script
-                type="application/ld+json"
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(toolJsonLd('split-pdf')) }}
-            />
+            {jsonLd && (
+                <script
+                    type="application/ld+json"
+                    dangerouslySetInnerHTML={{
+                        __html: jsonLdToScript(jsonLd),
+                    }}
+                />
+            )}
+
             {children}
         </>
     );

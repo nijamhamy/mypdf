@@ -269,9 +269,14 @@ export default function PdfToJpgPage() {
                     <div className="inline-flex items-center justify-center w-16 h-16 bg-amber-50 text-amber-600 rounded-2xl mb-4">
                         <ImageIcon className="w-8 h-8" />
                     </div>
-                    <h1 className="text-3xl font-extrabold text-gray-900">PDF to JPG Converter</h1>
-                    <p className="text-gray-600 mt-2">
-                        Convert PDF pages to JPG, PNG or WebP images. Pick pages, resolution and quality.
+                    <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900">
+                        PDF to JPG Converter Online Free
+                    </h1>
+
+                    <p className="text-gray-600 mt-3 max-w-3xl mx-auto">
+                        Convert PDF pages to high-quality JPG, PNG or WebP images online for free.
+                        Select one page or multiple pages, choose the resolution and quality, then
+                        download your images directly from your browser — no signup and no upload.
                     </p>
                 </div>
 
@@ -418,10 +423,11 @@ export default function PdfToJpgPage() {
             <ToolSeoContent
                 id="pdf-to-jpg"
                 steps={[
-                    'Click the upload area to select the PDF you want to convert.',
-                    'Choose the format (JPG, PNG or WebP), the resolution from 72 to 300 DPI, and the quality.',
-                    'Click the page thumbnails to choose pages, or type a range such as 1-3, 5.',
-                    'Click Convert and download your image. Several pages come as one ZIP file.',
+                    'Click the upload area or drag and drop the PDF file you want to convert.',
+                    'Choose the output format: JPG, PNG or WebP.',
+                    'Select the image resolution from 72 to 300 DPI and adjust the image quality if needed.',
+                    'Click page thumbnails to select the pages you want, or enter a range such as 1-3, 5.',
+                    'Click Convert to create your images. Download a single image, or download multiple pages as a ZIP file.',
                 ]}
             />
         </main>

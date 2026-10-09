@@ -1,15 +1,27 @@
 import type { ReactNode } from 'react';
-import { toolMetadata, toolJsonLd } from '@/lib/seo';
+import type { Metadata } from 'next';
+import {
+    toolMetadata,
+    toolJsonLd,
+    jsonLdToScript,
+} from '@/lib/seo';
 
-export const metadata = toolMetadata('pdf-to-word');
+export const metadata: Metadata = toolMetadata('pdf-to-word');
 
 export default function Layout({ children }: { children: ReactNode }) {
+    const jsonLd = toolJsonLd('pdf-to-word');
+
     return (
         <>
-            <script
-                type="application/ld+json"
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(toolJsonLd('pdf-to-word')) }}
-            />
+            {jsonLd && (
+                <script
+                    type="application/ld+json"
+                    dangerouslySetInnerHTML={{
+                        __html: jsonLdToScript(jsonLd),
+                    }}
+                />
+            )}
+
             {children}
         </>
     );

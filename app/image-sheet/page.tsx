@@ -592,9 +592,15 @@ export default function ImageSheetPage() {
                     <div className="inline-flex items-center justify-center w-16 h-16 bg-cyan-50 text-cyan-600 rounded-2xl mb-4">
                         <LayoutGrid className="w-8 h-8" />
                     </div>
-                    <h1 className="text-3xl font-extrabold text-gray-900">Image Sheet Maker</h1>
-                    <p className="text-gray-600 mt-2 max-w-2xl mx-auto">
-                        Upload one image or a single-page PDF and repeat it on a page: 2, 4, 8 or any number of copies, a custom grid, or a fixed photo size such as a passport photo. Save as PDF, PNG or JPG. Your file never leaves your browser.
+                    <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900">
+                        Images to PDF Converter Online Free
+                    </h1>
+
+                    <p className="text-gray-600 mt-3 max-w-3xl mx-auto">
+                        Convert JPG, PNG, WebP images or a single-page PDF into a printable PDF
+                        sheet. Create 2, 4, 8 or more copies, use a custom grid, or arrange
+                        passport-size photos with cut lines. Save as PDF, PNG or JPG — free,
+                        private and without signup.
                     </p>
                 </div>
 
@@ -911,10 +917,11 @@ export default function ImageSheetPage() {
             <ToolSeoContent
                 id="image-sheet"
                 steps={[
-                    'Choose the image, or a PDF with a single page, that you want to repeat.',
-                    'Pick a layout: copies per sheet, a custom grid, or a fixed photo size such as a passport photo.',
-                    'Set the paper size, margin, gap, fit and cut lines, and check the live preview.',
-                    'Choose PDF, PNG or JPG and click Create. Print at Actual size.',
+                    'Upload a JPG, PNG, WebP image or select a single-page PDF.',
+                    'Choose how many copies you need, create a custom grid, or select a fixed photo size such as passport photo.',
+                    'Set the paper size, orientation, margin, gap, image fit, rotation and cut lines.',
+                    'Check the live preview to confirm the sheet layout before creating the file.',
+                    'Choose PDF, PNG or JPG, then click Create. Print the PDF at Actual size or 100% for accurate dimensions.',
                 ]}
             />
         </main>

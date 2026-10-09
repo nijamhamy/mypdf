@@ -281,9 +281,15 @@ export default function SplitPDFPage() {
                     <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-50 text-blue-600 rounded-2xl mb-4">
                         <Scissors className="w-8 h-8" />
                     </div>
-                    <h1 className="text-3xl font-extrabold text-gray-900">Split PDF File</h1>
-                    <p className="text-gray-600 mt-2">
-                        Extract pages, delete pages, or cut your PDF into several files.
+                    <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900">
+                        Split PDF Online Free
+                    </h1>
+
+                    <p className="text-gray-600 mt-3 max-w-3xl mx-auto">
+                        Split PDF files online for free. Extract selected pages, delete unwanted
+                        pages, divide a PDF by page ranges or split it into equal parts. Download
+                        one PDF or multiple PDF files as a ZIP directly from your browser — no
+                        signup and no upload.
                     </p>
                 </div>
 
@@ -494,10 +500,11 @@ export default function SplitPDFPage() {
             <ToolSeoContent
                 id="split-pdf"
                 steps={[
-                    'Click the upload area to select the PDF you want to split.',
+                    'Click the upload area or drag and drop the PDF file you want to split.',
                     'Choose a mode: Extract pages, Delete pages, Split by ranges, or Split every N pages.',
-                    'Click page thumbnails or type a range such as 1-3, 5, and check the result list that shows the files to be created.',
-                    'Click the button to create your PDF. Several files download together as one ZIP.',
+                    'Click page thumbnails or enter a page range such as 1-3, 5 to choose the pages.',
+                    'Check the result list to see how many PDF files will be created.',
+                    'Click the split button to create one PDF, or download multiple PDF files together as a ZIP.',
                 ]}
             />
         </main>

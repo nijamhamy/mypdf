@@ -1,15 +1,27 @@
 import type { ReactNode } from 'react';
-import { toolMetadata, toolJsonLd } from '@/lib/seo';
+import type { Metadata } from 'next';
+import {
+    toolMetadata,
+    toolJsonLd,
+    jsonLdToScript,
+} from '@/lib/seo';
 
-export const metadata = toolMetadata('jpg-to-pdf');
+export const metadata: Metadata = toolMetadata('jpg-to-pdf');
 
 export default function Layout({ children }: { children: ReactNode }) {
+    const jsonLd = toolJsonLd('jpg-to-pdf');
+
     return (
         <>
-            <script
-                type="application/ld+json"
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(toolJsonLd('jpg-to-pdf')) }}
-            />
+            {jsonLd && (
+                <script
+                    type="application/ld+json"
+                    dangerouslySetInnerHTML={{
+                        __html: jsonLdToScript(jsonLd),
+                    }}
+                />
+            )}
+
             {children}
         </>
     );

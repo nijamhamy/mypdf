@@ -269,9 +269,15 @@ export default function AddPageNumbersPage() {
                     <div className="inline-flex items-center justify-center w-16 h-16 bg-pink-50 text-pink-600 rounded-2xl mb-4">
                         <Hash className="w-8 h-8" />
                     </div>
-                    <h1 className="text-3xl font-extrabold text-gray-900">Add Page Numbers to PDF</h1>
-                    <p className="text-gray-600 mt-2">
-                        Choose position, style and format, then check the live preview before you apply.
+                    <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900">
+                        Add Page Numbers to PDF Online Free
+                    </h1>
+
+                    <p className="text-gray-600 mt-3 max-w-3xl mx-auto">
+                        Add page numbers to PDF files online for free. Choose the position,
+                        number style, text format, starting number and font, then preview and
+                        download your numbered PDF directly from your browser — no signup and no
+                        file upload.
                     </p>
                 </div>
 
@@ -305,8 +311,8 @@ export default function AddPageNumbersPage() {
                                                 key={p.key}
                                                 onClick={() => setPosition(p.key)}
                                                 className={`px-2 py-2 text-xs rounded-lg border ${position === p.key
-                                                        ? 'bg-pink-600 text-white border-pink-600'
-                                                        : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-100'
+                                                    ? 'bg-pink-600 text-white border-pink-600'
+                                                    : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-100'
                                                     }`}
                                             >
                                                 {p.label}
@@ -492,10 +498,11 @@ export default function AddPageNumbersPage() {
             <ToolSeoContent
                 id="page-numbers"
                 steps={[
-                    'Click the upload area to select the PDF you want to number.',
-                    'Choose one of six positions, a number style (1, i, I, a, A) and a text format such as "Page 1 of N".',
-                    'Set the start number, enter the pages to number, and tick "Skip the first page" to leave the cover without a number.',
-                    'Check the live preview, then click Add Page Numbers and download your PDF.',
+                    'Click the upload area or drag and drop the PDF file you want to number.',
+                    'Choose the page number position: top left, top center, top right, bottom left, bottom center or bottom right.',
+                    'Select a number style such as 1, i, I, a or A, and choose a format such as Page 1 of N.',
+                    'Set the starting number, choose the pages to number, and optionally skip the cover page.',
+                    'Check the live preview, then click Add Page Numbers and download your numbered PDF.',
                 ]}
             />
         </main>

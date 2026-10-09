@@ -349,9 +349,15 @@ export default function AddWatermarkPage() {
                     <div className="inline-flex items-center justify-center w-16 h-16 bg-indigo-50 text-indigo-600 rounded-2xl mb-4">
                         <Stamp className="w-8 h-8" />
                     </div>
-                    <h1 className="text-3xl font-extrabold text-gray-900">Add Watermark to PDF</h1>
-                    <p className="text-gray-600 mt-2">
-                        Stamp text or a logo on your pages. Check the live preview before you apply.
+                    <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900">
+                        Add Watermark to PDF Online Free
+                    </h1>
+
+                    <p className="text-gray-600 mt-3 max-w-3xl mx-auto">
+                        Add a text or image watermark to PDF files online for free. Mark documents
+                        as CONFIDENTIAL, DRAFT or COPY, add your business logo, choose the
+                        position, opacity, rotation and pages, then download your watermarked PDF
+                        directly from your browser.
                     </p>
                 </div>
 
@@ -645,10 +651,12 @@ export default function AddWatermarkPage() {
             <ToolSeoContent
                 id="watermark-pdf"
                 steps={[
-                    'Click the upload area to select the PDF you want to watermark.',
-                    'Choose a text watermark (with font, size and colour) or upload a PNG or JPG logo as an image watermark.',
-                    'Set the opacity, rotation and position, or tick "Repeat across page (tile)" to cover the whole page.',
-                    'Pick all, odd, even or a custom range of pages, check the live preview, then click Add Watermark and download your PDF.',
+                    'Click the upload area or drag and drop the PDF file you want to watermark.',
+                    'Choose a text watermark or upload a PNG or JPG logo as an image watermark.',
+                    'For a text watermark, enter text such as CONFIDENTIAL, DRAFT or COPY, then choose the font, size and color.',
+                    'Set the watermark opacity, rotation, position and edge margin, or enable tiling to repeat it across the page.',
+                    'Choose all pages, odd pages, even pages or a custom page range.',
+                    'Check the live preview, then click Add Watermark and download your watermarked PDF.',
                 ]}
             />
         </main>

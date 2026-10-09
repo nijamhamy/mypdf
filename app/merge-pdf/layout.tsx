@@ -1,16 +1,28 @@
 import type { ReactNode } from 'react';
-import { toolMetadata, toolJsonLd } from '@/lib/seo';
+import type { Metadata } from 'next';
+import {
+  toolMetadata,
+  toolJsonLd,
+  jsonLdToScript,
+} from '@/lib/seo';
 
-export const metadata = toolMetadata('merge-pdf');
+export const metadata: Metadata = toolMetadata('merge-pdf');
 
 export default function Layout({ children }: { children: ReactNode }) {
-    return (
-        <>
-            <script
-                type="application/ld+json"
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(toolJsonLd('merge-pdf')) }}
-            />
-            {children}
-        </>
-    );
+  const jsonLd = toolJsonLd('merge-pdf');
+
+  return (
+    <>
+      {jsonLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: jsonLdToScript(jsonLd),
+          }}
+        />
+      )}
+
+      {children}
+    </>
+  );
 }

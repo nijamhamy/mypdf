@@ -664,9 +664,14 @@ export default function EditPdfPage() {
                     <div className="inline-flex items-center justify-center w-14 h-14 bg-orange-50 text-orange-600 rounded-2xl mb-3">
                         <Type className="w-7 h-7" />
                     </div>
-                    <h1 className="text-3xl font-extrabold text-gray-900">Edit PDF</h1>
-                    <p className="text-gray-600 mt-2">
-                        Edit text, add text in any language, highlight, whiteout, draw and insert images. Free, and your PDF never leaves your browser.
+                    <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900">
+                        Edit PDF Online Free
+                    </h1>
+
+                    <p className="text-gray-600 mt-3 max-w-3xl mx-auto">
+                        Edit PDF files online for free. Change existing text, add text in any
+                        language, highlight important lines, cover sensitive information, draw,
+                        insert images and save your updated PDF — directly in your browser.
                     </p>
                 </div>
 
@@ -940,10 +945,11 @@ export default function EditPdfPage() {
             <ToolSeoContent
                 id="edit-pdf"
                 steps={[
-                    'Click the upload area to select the PDF you want to edit.',
-                    'Choose Edit text and click a line to change it, or use Add text, Highlight, Whiteout, Draw and Image.',
-                    'Select, move or resize anything you added. Undo and redo are always available.',
-                    'Click Save PDF. Turn on Secure flatten if you covered sensitive text.',
+                    'Click the upload area to select the PDF file you want to edit.',
+                    'Use Edit text to click and change existing text, or choose Add text to insert new text.',
+                    'Use Highlight, Whiteout, Draw, Shapes and Image tools to annotate or update your PDF.',
+                    'Select, move, resize or delete any edit. Undo and redo are available while editing.',
+                    'Click Save PDF to download your edited file. Enable Secure flatten to permanently cover sensitive text.',
                 ]}
             />
         </main>

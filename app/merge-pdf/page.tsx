@@ -240,9 +240,14 @@ export default function MergePDFPage() {
                     <div className="inline-flex items-center justify-center w-16 h-16 bg-red-50 text-red-600 rounded-2xl mb-4">
                         <Files className="w-8 h-8" />
                     </div>
-                    <h1 className="text-3xl font-extrabold text-gray-900">Merge PDF Files</h1>
-                    <p className="text-gray-600 mt-2">
-                        Combine PDFs, choose pages from each file, and set the exact order.
+                    <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900">
+                        Merge PDF Files Online Free
+                    </h1>
+
+                    <p className="text-gray-600 mt-3 max-w-3xl mx-auto">
+                        Combine multiple PDF files into one document online for free. Arrange the
+                        page order, select only the pages you need, merge invoices, reports, scans
+                        or assignments, and download your combined PDF directly from your browser.
                     </p>
                 </div>
 
@@ -406,10 +411,11 @@ export default function MergePDFPage() {
             <ToolSeoContent
                 id="merge-pdf"
                 steps={[
-                    'Click the upload area or drag in the PDF files you want to combine.',
-                    'Drag the files into the order you want, or use A–Z, Z–A or Reverse.',
-                    'Click the arrow on a file to preview its pages and pick only the ones you need, or type a range such as 1-3, 5.',
-                    'Click Merge, then download your combined PDF.',
+                    'Click the upload area or drag and drop the PDF files you want to combine.',
+                    'Drag files to change their order, or use A–Z, Z–A or Reverse sorting.',
+                    'Open a file to preview its pages, select only the pages you need, or enter a range such as 1-3, 5.',
+                    'Enter a name for your merged PDF and click Merge.',
+                    'Download your combined PDF. Your files are processed in your browser and are not uploaded.',
                 ]}
             />
         </main >

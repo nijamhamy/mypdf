@@ -174,9 +174,15 @@ export default function RotatePDFPage() {
                     <div className="inline-flex items-center justify-center w-16 h-16 bg-teal-50 text-teal-600 rounded-2xl mb-4">
                         <RotateCw className="w-8 h-8" />
                     </div>
-                    <h1 className="text-3xl font-extrabold text-gray-900">Rotate PDF Files</h1>
-                    <p className="text-gray-600 mt-2">
-                        Rotate all pages or just the ones you choose, and remove pages you don’t need.
+                    <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900">
+                        Rotate PDF Pages Online Free
+                    </h1>
+
+                    <p className="text-gray-600 mt-3 max-w-3xl mx-auto">
+                        Rotate PDF pages online for free. Fix sideways or upside-down scans, turn
+                        all pages or selected pages left or right, remove unwanted pages and
+                        download a correctly oriented PDF directly from your browser — no signup
+                        and no upload.
                     </p>
                 </div>
 
@@ -251,10 +257,10 @@ export default function RotatePDFPage() {
                                 <div
                                     key={i}
                                     className={`rounded-xl border-2 bg-gray-50 p-2 transition ${p.removed
-                                            ? 'border-red-200 opacity-50'
-                                            : p.selected
-                                                ? 'border-teal-500 ring-2 ring-teal-100'
-                                                : 'border-gray-200'
+                                        ? 'border-red-200 opacity-50'
+                                        : p.selected
+                                            ? 'border-teal-500 ring-2 ring-teal-100'
+                                            : 'border-gray-200'
                                         }`}
                                 >
                                     <button
@@ -366,10 +372,11 @@ export default function RotatePDFPage() {
             <ToolSeoContent
                 id="rotate-pdf"
                 steps={[
-                    'Click the upload area to select the PDF with sideways or upside-down pages.',
-                    'Use the buttons on each page thumbnail to rotate it left or right, or use the top buttons to rotate all, odd or even pages at once.',
-                    'Select several pages by clicking them, then rotate or remove them together. Click Restore to bring back a removed page.',
-                    'Click Apply & create PDF and download your corrected file.',
+                    'Click the upload area or drag and drop the PDF with sideways or upside-down pages.',
+                    'Rotate individual pages left or right using the buttons below each page thumbnail.',
+                    'Rotate all pages, odd pages, even pages or selected pages at once.',
+                    'Select multiple pages to rotate or remove them together. Use Restore to bring back a removed page.',
+                    'Click Apply & create PDF, then download your correctly oriented PDF.',
                 ]}
             />
         </main>

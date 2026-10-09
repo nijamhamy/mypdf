@@ -1022,9 +1022,15 @@ export default function PdfToWordPage() {
                     <div className="inline-flex items-center justify-center w-16 h-16 bg-sky-50 text-sky-600 rounded-2xl mb-4">
                         <FileOutput className="w-8 h-8" />
                     </div>
-                    <h1 className="text-3xl font-extrabold text-gray-900">PDF to Word Converter</h1>
-                    <p className="text-gray-600 mt-2">
-                        Turn a PDF into an editable Word document with text, tables and images. Supports Arabic, Tamil and many other languages. Pick pages, use OCR for scans, and download a .docx file. Free, and your PDF never leaves your browser.
+                    <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900">
+                        PDF to Word Converter Online Free
+                    </h1>
+
+                    <p className="text-gray-600 mt-3 max-w-3xl mx-auto">
+                        Convert PDF to editable Word DOCX online for free. Extract text, tables and
+                        images from normal PDFs, use OCR for scanned documents, and support Tamil,
+                        Arabic, Hindi and many other languages — directly in your browser, with no
+                        signup or file upload.
                     </p>
                 </div>
 
@@ -1253,10 +1259,12 @@ export default function PdfToWordPage() {
             <ToolSeoContent
                 id="pdf-to-word"
                 steps={[
-                    'Click the upload area to select the PDF you want to convert.',
-                    'Choose Editable text for normal PDFs, Scanned PDF (OCR) for scans or legacy-font text, or Page images for an exact look.',
-                    'Turn on Detect tables and Keep images to carry tables and pictures into Word. For OCR, pick the language of the text.',
-                    'Click Convert to Word, then download your .docx file.',
+                    'Click the upload area or drag and drop the PDF file you want to convert.',
+                    'Choose Editable text for normal PDFs, Scanned PDF (OCR) for scanned or legacy-font documents, or Page images for an exact visual copy.',
+                    'Select the pages you want to convert, or enter a page range such as 1-3, 5.',
+                    'Enable Detect tables and Keep images to preserve tables and pictures in the Word file.',
+                    'For scanned PDFs, choose the OCR language, including Tamil, Arabic, Hindi and many other languages.',
+                    'Click Convert to Word and download your editable .docx file. Your PDF is processed in your browser and is not uploaded.',
                 ]}
             />
         </main>

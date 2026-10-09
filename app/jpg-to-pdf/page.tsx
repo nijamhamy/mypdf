@@ -281,9 +281,15 @@ export default function JpgToPdfPage() {
                     <div className="inline-flex items-center justify-center w-16 h-16 bg-purple-50 text-purple-600 rounded-2xl mb-4">
                         <ImageIcon className="w-8 h-8" />
                     </div>
-                    <h1 className="text-3xl font-extrabold text-gray-900">JPG to PDF Converter</h1>
-                    <p className="text-gray-600 mt-2">
-                        Turn JPG, PNG, WebP and more into one PDF. Reorder, rotate, and set page size.
+                    <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900">
+                        JPG to PDF Converter Online Free
+                    </h1>
+
+                    <p className="text-gray-600 mt-3 max-w-3xl mx-auto">
+                        Convert JPG, JPEG, PNG, WebP, GIF, BMP and AVIF images to PDF online for
+                        free. Combine multiple images into one PDF, arrange their order, rotate
+                        pages and choose A4, Letter or fit-to-image page size — directly in your
+                        browser.
                     </p>
                 </div>
 
@@ -459,10 +465,11 @@ export default function JpgToPdfPage() {
             <ToolSeoContent
                 id="jpg-to-pdf"
                 steps={[
-                    'Click the upload area or drag your images in (JPG, PNG, WebP, GIF, BMP or AVIF).',
-                    'Drag to reorder, rotate or duplicate images as needed.',
-                    'Choose the page size, orientation, margin, image fit and quality.',
-                    'Click Convert, then download your PDF.',
+                    'Click the upload area or drag and drop your JPG, PNG, WebP, GIF, BMP or AVIF images.',
+                    'Drag images to change their order, rotate them, duplicate them or remove unwanted images.',
+                    'Choose the PDF page size, orientation, margin, image fit and output quality.',
+                    'Click Convert to create a single PDF from all selected images.',
+                    'Download your finished PDF. Your images are processed in your browser and are not uploaded.',
                 ]}
             />
         </main>
