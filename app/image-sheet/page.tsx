@@ -1,60 +1,60 @@
-'use client';
+"use client";
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { useEffect, useMemo, useRef, useState } from 'react';
-import type { ChangeEvent, DragEvent, ReactNode } from 'react';
-import Link from 'next/link';
-import { LayoutGrid, ImagePlus, AlertCircle, RotateCw, RotateCcw, ChevronLeft, ChevronRight, Info } from 'lucide-react';
-import ProcessButton from '@/components/pdf/ProcessButton';
-import ProcessingModal, { ProcessStatus } from '@/components/pdf/ProcessingModal';
-import ToolSeoContent from '@/components/ToolSeoContent';
-import { formatBytes } from '@/lib/pdf-utils';
+import { useEffect, useMemo, useRef, useState } from "react";
+import type { ChangeEvent, DragEvent, KeyboardEvent, ReactNode } from "react";
+import Link from "next/link";
+import { AlertCircle, ChevronLeft, ChevronRight, ImagePlus, Info, LayoutGrid, RotateCcw, RotateCw, ShieldCheck } from "lucide-react";
+import ProcessButton from "@/components/pdf/ProcessButton";
+import ProcessingModal, { ProcessStatus } from "@/components/pdf/ProcessingModal";
+import ToolSeoContent from "@/components/ToolSeoContent";
+import { formatBytes } from "@/lib/pdf-utils";
 
-type Mode = 'count' | 'grid' | 'size';
-type Fit = 'contain' | 'cover' | 'stretch';
-type Orient = 'auto' | 'portrait' | 'landscape';
-type Format = 'pdf' | 'png' | 'jpg';
+type Mode = "count" | "grid" | "size";
+type Fit = "contain" | "cover" | "stretch";
+type Orient = "auto" | "portrait" | "landscape";
+type Format = "pdf" | "png" | "jpg";
 
 const UF = { mm: 1, cm: 10, in: 25.4 } as const;
 type Unit = keyof typeof UF;
 
 const PAGES = [
-    { k: 'A4', label: 'A4 (210 × 297 mm)', w: 210, h: 297 },
-    { k: 'A3', label: 'A3 (297 × 420 mm)', w: 297, h: 420 },
-    { k: 'A5', label: 'A5 (148 × 210 mm)', w: 148, h: 210 },
-    { k: 'A6', label: 'A6 (105 × 148 mm)', w: 105, h: 148 },
-    { k: 'Letter', label: 'US Letter (8.5 × 11 in)', w: 215.9, h: 279.4 },
-    { k: 'Legal', label: 'US Legal (8.5 × 14 in)', w: 215.9, h: 355.6 },
-    { k: '4x6', label: 'Photo paper 4 × 6 in', w: 101.6, h: 152.4 },
-    { k: '5x7', label: 'Photo paper 5 × 7 in', w: 127, h: 177.8 },
-    { k: 'custom', label: 'Custom size', w: 0, h: 0 },
+    { k: "A4", label: "A4 (210 × 297 mm)", w: 210, h: 297 },
+    { k: "A3", label: "A3 (297 × 420 mm)", w: 297, h: 420 },
+    { k: "A5", label: "A5 (148 × 210 mm)", w: 148, h: 210 },
+    { k: "A6", label: "A6 (105 × 148 mm)", w: 105, h: 148 },
+    { k: "Letter", label: "US Letter (8.5 × 11 in)", w: 215.9, h: 279.4 },
+    { k: "Legal", label: "US Legal (8.5 × 14 in)", w: 215.9, h: 355.6 },
+    { k: "4x6", label: "Photo paper 4 × 6 in", w: 101.6, h: 152.4 },
+    { k: "5x7", label: "Photo paper 5 × 7 in", w: 127, h: 177.8 },
+    { k: "custom", label: "Custom size", w: 0, h: 0 },
 ];
 
 const PHOTO_PRESETS = [
-    { k: 'passport', label: 'Passport / ID 35 × 45 mm', w: 35, h: 45 },
-    { k: 'us2', label: 'US passport 2 × 2 in', w: 50.8, h: 50.8 },
-    { k: 'small', label: 'Small ID 25 × 35 mm', w: 25, h: 35 },
-    { k: 'stamp', label: 'Stamp 20 × 25 mm', w: 20, h: 25 },
-    { k: 'wallet', label: 'Wallet 2.5 × 3.5 in', w: 63.5, h: 88.9 },
-    { k: '4x6', label: 'Print 4 × 6 in', w: 101.6, h: 152.4 },
-    { k: '5x7', label: 'Print 5 × 7 in', w: 127, h: 177.8 },
-    { k: 'square', label: 'Square 50 × 50 mm', w: 50, h: 50 },
-    { k: 'sticker', label: 'Sticker 40 × 40 mm', w: 40, h: 40 },
-    { k: 'card', label: 'Business card 90 × 55 mm', w: 90, h: 55 },
-    { k: 'id', label: 'ID card 85.6 × 54 mm', w: 85.6, h: 54 },
-    { k: 'custom', label: 'Custom size', w: 0, h: 0 },
+    { k: "passport", label: "Passport / ID 35 × 45 mm", w: 35, h: 45 },
+    { k: "us2", label: "US passport 2 × 2 in", w: 50.8, h: 50.8 },
+    { k: "small", label: "Small ID 25 × 35 mm", w: 25, h: 35 },
+    { k: "stamp", label: "Stamp 20 × 25 mm", w: 20, h: 25 },
+    { k: "wallet", label: "Wallet 2.5 × 3.5 in", w: 63.5, h: 88.9 },
+    { k: "4x6", label: "Print 4 × 6 in", w: 101.6, h: 152.4 },
+    { k: "5x7", label: "Print 5 × 7 in", w: 127, h: 177.8 },
+    { k: "square", label: "Square 50 × 50 mm", w: 50, h: 50 },
+    { k: "sticker", label: "Sticker 40 × 40 mm", w: 40, h: 40 },
+    { k: "card", label: "Business card 90 × 55 mm", w: 90, h: 55 },
+    { k: "id", label: "ID card 85.6 × 54 mm", w: 85.6, h: 54 },
+    { k: "custom", label: "Custom size", w: 0, h: 0 },
 ];
 
 const COUNT_CHIPS = [1, 2, 4, 6, 8, 9, 12, 16, 20, 24, 30];
-const tick = () => new Promise<void>((r) => setTimeout(r, 20));
+const tick = () => new Promise<void>((resolve) => setTimeout(resolve, 20));
 const clamp = (n: number, a: number, b: number) => Math.max(a, Math.min(b, n));
 const round2 = (n: number) => Math.round(n * 100) / 100;
 const mm2pt = (mm: number) => (mm * 72) / 25.4;
 
 function hexRgb01(hex: string): [number, number, number] {
-    let h = hex.replace('#', '');
-    if (h.length === 3) h = h.split('').map((c) => c + c).join('');
-    const n = parseInt(h || '000000', 16);
+    let h = hex.replace("#", "");
+    if (h.length === 3) h = h.split("").map((c) => c + c).join("");
+    const n = parseInt(h || "000000", 16);
     return [((n >> 16) & 255) / 255, ((n >> 8) & 255) / 255, (n & 255) / 255];
 }
 
@@ -64,28 +64,25 @@ const loadImg = (url: string) =>
     new Promise<HTMLImageElement>((resolve, reject) => {
         const im = new Image();
         im.onload = () => resolve(im);
-        im.onerror = () => reject(new Error('image'));
+        im.onerror = () => reject(new Error("image"));
         im.src = url;
     });
 
 function canvasBlob(canvas: HTMLCanvasElement, type: string, quality?: number): Promise<Blob> {
     return new Promise((resolve, reject) => {
-        canvas.toBlob((b) => (b ? resolve(b) : reject(new Error('Export failed'))), type, quality);
+        canvas.toBlob((b) => (b ? resolve(b) : reject(new Error("Export failed"))), type, quality);
     });
 }
 
 async function renderSinglePagePdf(file: File): Promise<Blob> {
-    const pdfjs: any = await import('pdfjs-dist');
-    pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-        'pdfjs-dist/build/pdf.worker.min.mjs',
-        import.meta.url
-    ).toString();
+    const pdfjs: any = await import("pdfjs-dist");
+    pdfjs.GlobalWorkerOptions.workerSrc = new URL("pdfjs-dist/build/pdf.worker.min.mjs", import.meta.url).toString();
     const data = new Uint8Array(await file.arrayBuffer());
     const task: any = pdfjs.getDocument({ data });
     try {
         const doc: any = await task.promise;
         if (doc.numPages !== 1) {
-            const err: any = new Error('pages');
+            const err: any = new Error("pages");
             err.pages = doc.numPages;
             throw err;
         }
@@ -93,27 +90,27 @@ async function renderSinglePagePdf(file: File): Promise<Blob> {
         const v1 = page.getViewport({ scale: 1 });
         const scale = Math.max(1, Math.min(300 / 72, Math.sqrt(30_000_000 / (v1.width * v1.height))));
         const vp = page.getViewport({ scale });
-        const canvas = document.createElement('canvas');
+        const canvas = document.createElement("canvas");
         canvas.width = Math.floor(vp.width);
         canvas.height = Math.floor(vp.height);
-        const ctx = canvas.getContext('2d');
-        if (!ctx) throw new Error('Canvas not supported');
-        ctx.fillStyle = '#ffffff';
+        const ctx = canvas.getContext("2d");
+        if (!ctx) throw new Error("Canvas not supported");
+        ctx.fillStyle = "#ffffff";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         await page.render({ canvasContext: ctx, viewport: vp, canvas } as any).promise;
-        const blob = await canvasBlob(canvas, 'image/png');
+        const blob = await canvasBlob(canvas, "image/png");
         canvas.width = 0;
         canvas.height = 0;
         return blob;
     } finally {
-        try { await task.destroy(); } catch { /* ignore */ }
+        try { await task.destroy(); } catch { /* cleanup is best effort */ }
     }
 }
 
 /* ---------- layout ---------- */
 
 interface Layout {
-    pw: number; ph: number; orient: 'portrait' | 'landscape';
+    pw: number; ph: number; orient: "portrait" | "landscape";
     rows: number; cols: number; cw: number; ch: number; cellRot: boolean;
     perPage: number; used: number[]; xs: number[]; ys: number[];
 }
@@ -121,7 +118,7 @@ interface Layout {
 interface LayoutIn {
     mode: Mode; count: number; rows: number; cols: number; sizeW: number; sizeH: number;
     total: number; allowRot: boolean; baseW: number; baseH: number; orient: Orient;
-    margin: number; gap: number; align: 'center' | 'topleft'; sheets: number; ar: number;
+    margin: number; gap: number; align: "center" | "topleft"; sheets: number; ar: number;
 }
 
 type LayoutRes = { ok: true; L: Layout } | { ok: false; error: string };
@@ -143,18 +140,18 @@ function cellsFor(pw: number, ph: number, m: number, g: number, rows: number, co
 function computeLayout(i: LayoutIn): LayoutRes {
     const s = Math.min(i.baseW, i.baseH);
     const l = Math.max(i.baseW, i.baseH);
-    if (s < 20) return { ok: false, error: 'The page is too small. Enter a size of at least 20 mm.' };
-    const orients = (i.orient === 'auto' ? ['portrait', 'landscape'] : [i.orient]) as ('portrait' | 'landscape')[];
-    const dims = (o: 'portrait' | 'landscape'): [number, number] => (o === 'portrait' ? [s, l] : [l, s]);
+    if (s < 20) return { ok: false, error: "The page is too small. Enter a size of at least 20 mm." };
+    const orients = (i.orient === "auto" ? ["portrait", "landscape"] : [i.orient]) as ("portrait" | "landscape")[];
+    const dims = (o: "portrait" | "landscape"): [number, number] => (o === "portrait" ? [s, l] : [l, s]);
 
-    if (i.mode !== 'size') {
-        const N = i.mode === 'count' ? i.count : i.rows * i.cols;
-        if (!(N >= 1) || N > 200) return { ok: false, error: 'Choose between 1 and 200 copies per sheet.' };
+    if (i.mode !== "size") {
+        const N = i.mode === "count" ? i.count : i.rows * i.cols;
+        if (!(N >= 1) || N > 200) return { ok: false, error: "Choose between 1 and 200 copies per sheet." };
         let best: any = null;
         for (const o of orients) {
             const [pw, ph] = dims(o);
             const cands: [number, number][] = [];
-            if (i.mode === 'count') {
+            if (i.mode === "count") {
                 for (let r = 1; r <= N; r++) cands.push([r, Math.ceil(N / r)]);
                 for (let c = 1; c <= N; c++) cands.push([Math.ceil(N / c), c]);
             } else cands.push([i.rows, i.cols]);
@@ -165,7 +162,7 @@ function computeLayout(i: LayoutIn): LayoutRes {
                 if (!best || score > best.score) best = { score, o, pw, ph, r, c, ...cell };
             }
         }
-        if (!best) return { ok: false, error: 'The margins and gaps leave no room on this page. Reduce them or use a bigger page.' };
+        if (!best) return { ok: false, error: "The margins and gaps leave no room on this page. Reduce them or use a bigger page." };
         const xs = Array.from({ length: best.c }, (_, k) => i.margin + k * (best.cw + i.gap));
         const ys = Array.from({ length: best.r }, (_, k) => i.margin + k * (best.ch + i.gap));
         const sheets = clamp(Math.round(i.sheets) || 1, 1, 100);
@@ -178,7 +175,7 @@ function computeLayout(i: LayoutIn): LayoutRes {
         };
     }
 
-    if (!(i.sizeW > 0) || !(i.sizeH > 0)) return { ok: false, error: 'Enter a photo width and height.' };
+    if (!(i.sizeW > 0) || !(i.sizeH > 0)) return { ok: false, error: "Enter a photo width and height." };
     let best: any = null;
     for (const o of orients) {
         const [pw, ph] = dims(o);
@@ -193,20 +190,20 @@ function computeLayout(i: LayoutIn): LayoutRes {
             if (n > 0 && (!best || n > best.n)) best = { n, o, pw, ph, cols, rows, w, h, rot };
         }
     }
-    if (!best) return { ok: false, error: 'The photo is larger than the printable area. Use a bigger page, smaller photo or smaller margins.' };
+    if (!best) return { ok: false, error: "The photo is larger than the printable area. Use a bigger page, smaller photo or smaller margins." };
 
     let used: number[];
     if (i.total > 0) {
         const pages = Math.ceil(i.total / best.n);
-        if (pages > 100) return { ok: false, error: 'That would need more than 100 sheets. Lower the number of copies.' };
+        if (pages > 100) return { ok: false, error: "That would need more than 100 sheets. Lower the number of copies." };
         used = Array.from({ length: pages }, (_, p) => Math.min(best.n, i.total - p * best.n));
     } else {
         used = Array(clamp(Math.round(i.sheets) || 1, 1, 100)).fill(best.n);
     }
     const bw = best.cols * best.w + (best.cols - 1) * i.gap;
     const bh = best.rows * best.h + (best.rows - 1) * i.gap;
-    const x0 = i.align === 'center' ? (best.pw - bw) / 2 : i.margin;
-    const y0 = i.align === 'center' ? (best.ph - bh) / 2 : i.margin;
+    const x0 = i.align === "center" ? (best.pw - bw) / 2 : i.margin;
+    const y0 = i.align === "center" ? (best.ph - bh) / 2 : i.margin;
     return {
         ok: true,
         L: {
@@ -237,8 +234,8 @@ function drawFit(
     ctx.fillRect(x, y, w, h);
     let dw = w;
     let dh = h;
-    if (fit !== 'stretch') {
-        const s = fit === 'cover' ? Math.max(w / rw, h / rh) : Math.min(w / rw, h / rh);
+    if (fit !== "stretch") {
+        const s = fit === "cover" ? Math.max(w / rw, h / rh) : Math.min(w / rw, h / rh);
         dw = rw * s;
         dh = rh * s;
     }
@@ -246,7 +243,7 @@ function drawFit(
     ctx.rotate((rot * Math.PI) / 180);
     const iw = sideways ? dh : dw;
     const ih = sideways ? dw : dh;
-    ctx.imageSmoothingQuality = 'high';
+    ctx.imageSmoothingQuality = "high";
     ctx.drawImage(img, -iw / 2, -ih / 2, iw, ih);
     ctx.restore();
 }
@@ -277,17 +274,17 @@ function drawSheet(
 }
 
 async function buildImage(
-    img: HTMLImageElement, L: Layout, o: RenderOpts, dpi: number, type: 'image/png' | 'image/jpeg'
+    img: HTMLImageElement, L: Layout, o: RenderOpts, dpi: number, type: "image/png" | "image/jpeg"
 ) {
     const k = dpi / 25.4;
     const w = Math.round(L.pw * k);
     const h = Math.round(L.ph * k);
-    if (w * h > 64_000_000) throw new Error('too-large');
-    const c = document.createElement('canvas');
+    if (w * h > 64_000_000) throw new Error("too-large");
+    const c = document.createElement("canvas");
     c.width = w;
     c.height = h;
-    const ctx = c.getContext('2d');
-    if (!ctx) throw new Error('Canvas not supported');
+    const ctx = c.getContext("2d");
+    if (!ctx) throw new Error("Canvas not supported");
     drawSheet(ctx, k, L, 0, img, o);
     const blob = await canvasBlob(c, type, 0.95);
     c.width = 0;
@@ -296,20 +293,21 @@ async function buildImage(
 }
 
 async function buildPdf(
-    img: HTMLImageElement, L: Layout, o: RenderOpts, dpi: number, onProgress: (p: number) => void
+    img: HTMLImageElement, L: Layout, o: RenderOpts, dpi: number,
+    onProgress: (p: number) => void, isCancelled: () => boolean
 ) {
-    const { PDFDocument, rgb } = (await import('pdf-lib')) as any;
+    const { PDFDocument, rgb } = (await import("pdf-lib")) as any;
     const pdf = await PDFDocument.create();
     const k = dpi / 25.4;
     const cwPx = clamp(Math.round(L.cw * k), 1, 5000);
     const chPx = clamp(Math.round(L.ch * k), 1, 5000);
-    const cell = document.createElement('canvas');
+    const cell = document.createElement("canvas");
     cell.width = cwPx;
     cell.height = chPx;
-    const cctx = cell.getContext('2d');
-    if (!cctx) throw new Error('Canvas not supported');
+    const cctx = cell.getContext("2d");
+    if (!cctx) throw new Error("Canvas not supported");
     drawFit(cctx, img, 0, 0, cwPx, chPx, o.fit, o.rot, o.bg);
-    const jpg = await canvasBlob(cell, 'image/jpeg', 0.95);
+    const jpg = await canvasBlob(cell, "image/jpeg", 0.95);
     cell.width = 0;
     cell.height = 0;
     const embedded = await pdf.embedJpg(new Uint8Array(await jpg.arrayBuffer()));
@@ -318,8 +316,9 @@ async function buildPdf(
     const pageH = mm2pt(L.ph);
     const cutCol = rgb(...hexRgb01(o.cutColor));
     for (let p = 0; p < L.used.length; p++) {
+        if (isCancelled()) throw new Error("cancelled");
         const page = pdf.addPage([pageW, pageH]);
-        if (o.bg.toLowerCase() !== '#ffffff') {
+        if (o.bg.toLowerCase() !== "#ffffff") {
             page.drawRectangle({ x: 0, y: 0, width: pageW, height: pageH, color: rgb(...hexRgb01(o.bg)) });
         }
         for (let i = 0; i < L.used[p]; i++) {
@@ -338,7 +337,7 @@ async function buildPdf(
         await tick();
     }
     const bytes = await pdf.save();
-    return new Blob([bytes as any], { type: 'application/pdf' });
+    return new Blob([bytes as any], { type: "application/pdf" });
 }
 
 /* ---------- small UI helpers ---------- */
@@ -346,15 +345,15 @@ async function buildPdf(
 function Field({ label, children, hint }: { label: string; children: ReactNode; hint?: string }) {
     return (
         <label className="block">
-            <span className="block text-xs font-semibold text-gray-600 mb-1">{label}</span>
+            <span className="mb-1 block text-xs font-semibold text-gray-700">{label}</span>
             {children}
-            {hint && <span className="block text-[11px] text-gray-400 mt-1">{hint}</span>}
+            {hint && <span className="mt-1 block text-[11px] text-gray-700">{hint}</span>}
         </label>
     );
 }
 
-const inputCls = 'w-full px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-cyan-500';
-const cardCls = 'p-4 rounded-2xl border border-gray-200 bg-gray-50 space-y-3';
+const inputCls = "w-full px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-cyan-600";
+const cardCls = "p-4 rounded-2xl border border-gray-200 bg-gray-50 space-y-3";
 
 /* ---------- page ---------- */
 
@@ -366,60 +365,70 @@ export default function ImageSheetPage() {
     const [loadError, setLoadError] = useState<{ msg: string; split?: boolean } | null>(null);
     const [dragOver, setDragOver] = useState(false);
     const urlRef = useRef<string | null>(null);
+    const loadToken = useRef(0);
 
-    const [mode, setMode] = useState<Mode>('count');
+    const [mode, setMode] = useState<Mode>("count");
     const [count, setCount] = useState(4);
     const [rows, setRows] = useState(2);
     const [cols, setCols] = useState(2);
-    const [photoPreset, setPhotoPreset] = useState('passport');
-    const [unit, setUnit] = useState<Unit>('mm');
+    const [photoPreset, setPhotoPreset] = useState("passport");
+    const [unit, setUnit] = useState<Unit>("mm");
     const [sizeW, setSizeW] = useState(35);
     const [sizeH, setSizeH] = useState(45);
     const [total, setTotal] = useState(0);
     const [allowRot, setAllowRot] = useState(true);
 
-    const [pagePreset, setPagePreset] = useState('A4');
+    const [pagePreset, setPagePreset] = useState("A4");
     const [customW, setCustomW] = useState(210);
     const [customH, setCustomH] = useState(297);
-    const [orient, setOrient] = useState<Orient>('auto');
+    const [orient, setOrient] = useState<Orient>("auto");
     const [margin, setMargin] = useState(10);
     const [gap, setGap] = useState(5);
-    const [align, setAlign] = useState<'center' | 'topleft'>('center');
+    const [align, setAlign] = useState<"center" | "topleft">("center");
     const [sheets, setSheets] = useState(1);
 
-    const [fit, setFit] = useState<Fit>('contain');
+    const [fit, setFit] = useState<Fit>("contain");
     const [rot, setRot] = useState(0);
-    const [bg, setBg] = useState('#ffffff');
+    const [bg, setBg] = useState("#ffffff");
     const [cut, setCut] = useState(true);
     const [dashed, setDashed] = useState(false);
-    const [cutColor, setCutColor] = useState('#9ca3af');
+    const [cutColor, setCutColor] = useState("#9ca3af");
 
-    const [format, setFormat] = useState<Format>('pdf');
+    const [format, setFormat] = useState<Format>("pdf");
     const [dpi, setDpi] = useState(300);
-    const [outName, setOutName] = useState('image-sheet');
+    const [outName, setOutName] = useState("image-sheet");
     const [sheetIdx, setSheetIdx] = useState(0);
 
-    const [status, setStatus] = useState<ProcessStatus>('idle');
+    const [status, setStatus] = useState<ProcessStatus>("idle");
     const [progress, setProgress] = useState(0);
-    const [message, setMessage] = useState('');
+    const [message, setMessage] = useState("");
     const [result, setResult] = useState<Blob | null>(null);
     const [modalError, setModalError] = useState<string | null>(null);
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const cancelRef = useRef(false);
+    const mounted = useRef(false);
     const inputRef = useRef<HTMLInputElement>(null);
 
     const f = UF[unit];
 
-    useEffect(() => () => { if (urlRef.current) URL.revokeObjectURL(urlRef.current); }, []);
+    useEffect(() => {
+        mounted.current = true;
+        return () => {
+            mounted.current = false;
+            loadToken.current++;
+            if (urlRef.current) URL.revokeObjectURL(urlRef.current);
+        };
+    }, []);
 
     const loadFile = async (files: FileList | File[] | null) => {
         const picked = files && files[0];
         if (!picked) return;
-        const isPdf = picked.type === 'application/pdf' || /\.pdf$/i.test(picked.name);
-        if (!isPdf && !picked.type.startsWith('image/')) {
-            setLoadError({ msg: 'Please choose an image (JPG, PNG, WebP) or a single-page PDF.' });
+        const isPdf = picked.type === "application/pdf" || /\.pdf$/i.test(picked.name);
+        if (!isPdf && !picked.type.startsWith("image/")) {
+            setLoadError({ msg: "Please choose an image (JPG, PNG, WebP) or a single-page PDF." });
             return;
         }
+        const token = ++loadToken.current;
         setLoadError(null);
         setLoading(true);
         try {
@@ -437,6 +446,10 @@ export default function ImageSheetPage() {
                 URL.revokeObjectURL(url);
                 throw e;
             }
+            if (!mounted.current || token !== loadToken.current) {
+                URL.revokeObjectURL(url);
+                return;
+            }
             if (urlRef.current) URL.revokeObjectURL(urlRef.current);
             urlRef.current = url;
             setFile(picked);
@@ -444,22 +457,24 @@ export default function ImageSheetPage() {
             setFromPdf(isPdf);
             setRot(0);
             setSheetIdx(0);
-            setOutName(picked.name.replace(/\.[^.]+$/, '') + '-sheet');
+            setResult(null);
+            setOutName(picked.name.replace(/\.[^.]+$/, "") + "-sheet");
         } catch (e: any) {
-            if (e?.message === 'pages') {
+            if (!mounted.current || token !== loadToken.current) return;
+            if (e?.message === "pages") {
                 setLoadError({
                     msg: `This PDF has ${e.pages} pages. Only single-page PDFs are accepted here. Use Split PDF to extract the page you need, then upload that file.`,
                     split: true,
                 });
-            } else if (e?.name === 'PasswordException') {
-                setLoadError({ msg: 'This PDF is password protected. Remove the password in the program that created it and try again.' });
-            } else if (e?.message === 'image') {
-                setLoadError({ msg: 'This image could not be opened. HEIC files are not supported by most browsers, so convert it to JPG or PNG first.' });
+            } else if (e?.name === "PasswordException") {
+                setLoadError({ msg: "This PDF is password protected. Remove the password in the program that created it and try again." });
+            } else if (e?.message === "image") {
+                setLoadError({ msg: "This image could not be opened. HEIC files are not supported by most browsers, so convert it to JPG or PNG first." });
             } else {
-                setLoadError({ msg: 'This file could not be read. It may be damaged. Try another file.' });
+                setLoadError({ msg: "This file could not be read. It may be damaged. Try another file." });
             }
         } finally {
-            setLoading(false);
+            if (mounted.current && token === loadToken.current) setLoading(false);
         }
     };
 
@@ -467,6 +482,13 @@ export default function ImageSheetPage() {
         e.preventDefault();
         setDragOver(false);
         loadFile(e.dataTransfer.files);
+    };
+
+    const onDropzoneKey = (e: KeyboardEvent) => {
+        if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            if (!loading) inputRef.current?.click();
+        }
     };
 
     const changeUnit = (u: Unit) => {
@@ -491,7 +513,7 @@ export default function ImageSheetPage() {
 
     const basePage = useMemo(() => {
         const p = PAGES.find((x) => x.k === pagePreset);
-        if (!p || p.k === 'custom') return { w: customW * f, h: customH * f };
+        if (!p || p.k === "custom") return { w: customW * f, h: customH * f };
         return { w: p.w, h: p.h };
     }, [pagePreset, customW, customH, f]);
 
@@ -519,7 +541,7 @@ export default function ImageSheetPage() {
         const k = W / L.pw;
         c.width = W;
         c.height = Math.round(L.ph * k);
-        const ctx = c.getContext('2d');
+        const ctx = c.getContext("2d");
         if (!ctx) return;
         drawSheet(ctx, k, L, shownSheet, imgEl, { fit, rot: totalRot, bg, cut, dashed, cutColor });
     }, [imgEl, L, shownSheet, fit, totalRot, bg, cut, dashed, cutColor]);
@@ -530,140 +552,152 @@ export default function ImageSheetPage() {
         const sh = totalRot % 180 !== 0 ? imgEl.naturalWidth : imgEl.naturalHeight;
         const sx = L.cw / sw;
         const sy = L.ch / sh;
-        const mmPerPx = fit === 'cover' ? Math.max(sx, sy) : fit === 'stretch' ? Math.max(sx, sy) : Math.min(sx, sy);
+        const mmPerPx = fit === "cover" ? Math.max(sx, sy) : fit === "stretch" ? Math.max(sx, sy) : Math.min(sx, sy);
         return Math.round(25.4 / mmPerPx);
     }, [imgEl, L, totalRot, fit]);
 
     const totalCopies = L ? L.used.reduce((s, n) => s + n, 0) : 0;
 
     const handleCreate = async () => {
-        if (!imgEl || !L) return;
+        if (!imgEl || !L || status === "processing") return;
         cancelRef.current = false;
         setResult(null);
         setModalError(null);
         setProgress(5);
-        setMessage('Building your sheet...');
-        setStatus('processing');
+        setMessage("Building your sheet...");
+        setStatus("processing");
         await tick();
         try {
             let blob: Blob;
-            if (format === 'pdf') {
-                blob = await buildPdf(imgEl, L, renderOpts, dpi, (p) => setProgress(p));
+            if (format === "pdf") {
+                blob = await buildPdf(imgEl, L, renderOpts, dpi, (p) => setProgress(p), () => cancelRef.current);
             } else {
-                blob = await buildImage(imgEl, L, renderOpts, dpi, format === 'png' ? 'image/png' : 'image/jpeg');
+                blob = await buildImage(imgEl, L, renderOpts, dpi, format === "png" ? "image/png" : "image/jpeg");
             }
             if (cancelRef.current) return;
             setResult(blob);
             setProgress(100);
             await new Promise((r) => setTimeout(r, 300));
-            setStatus('done');
+            if (mounted.current && !cancelRef.current) setStatus("done");
         } catch (e: any) {
+            if (e?.message === "cancelled" || cancelRef.current) return;
             console.error(e);
-            setModalError(e?.message === 'too-large'
-                ? 'The image would be too large at this DPI. Choose a lower DPI.'
-                : 'Failed to create the sheet. Try a lower DPI or a smaller image.');
-            setStatus('error');
+            setModalError(e?.message === "too-large"
+                ? "The image would be too large at this DPI. Choose a lower DPI."
+                : "Failed to create the sheet. Try a lower DPI or a smaller image.");
+            setStatus("error");
         }
     };
 
-    const handleCancel = () => { cancelRef.current = true; setStatus('idle'); setProgress(0); };
-    const closeModal = () => { setStatus('idle'); setModalError(null); };
+    const handleCancel = () => { cancelRef.current = true; setStatus("idle"); setProgress(0); };
+    const closeModal = () => { setStatus("idle"); setModalError(null); };
     const resetAll = () => {
+        cancelRef.current = true;
+        loadToken.current++;
         if (urlRef.current) { URL.revokeObjectURL(urlRef.current); urlRef.current = null; }
         setFile(null);
         setImgEl(null);
         setFromPdf(false);
         setResult(null);
-        setStatus('idle');
+        setStatus("idle");
         setProgress(0);
+        setMessage("");
+        setModalError(null);
+        setLoadError(null);
+        setLoading(false);
     };
 
-    const safeName = (outName.trim() || 'image-sheet').replace(/[\\/:*?"<>|]/g, '_');
-    const ext = format === 'pdf' ? 'pdf' : format;
+    const safeName = (outName.trim() || "image-sheet").replace(/\.(pdf|png|jpe?g)$/i, "").replace(/[\\/:*?"<>|]/g, "_");
+    const ext = format;
     const tabCls = (on: boolean) =>
-        `px-3 py-2 text-sm font-semibold rounded-lg border ${on ? 'bg-cyan-600 text-white border-cyan-600' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}`;
+        `px-3 py-2 text-sm font-semibold rounded-lg border ${on ? "bg-cyan-700 text-white border-cyan-700" : "bg-white text-gray-800 border-gray-300 hover:bg-gray-50"}`;
     const chipCls = (on: boolean) =>
-        `px-3 py-1.5 text-sm rounded-full border ${on ? 'bg-cyan-600 text-white border-cyan-600' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-100'}`;
+        `px-3 py-1.5 text-sm rounded-full border ${on ? "bg-cyan-700 text-white border-cyan-700" : "bg-white text-gray-800 border-gray-300 hover:bg-gray-100"}`;
 
     return (
-        <main className="min-h-screen bg-gray-50 py-10 px-3 sm:px-6">
-            <div className="max-w-6xl mx-auto bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-8">
-                <div className="text-center mb-8">
-                    <div className="inline-flex items-center justify-center w-16 h-16 bg-cyan-50 text-cyan-600 rounded-2xl mb-4">
-                        <LayoutGrid className="w-8 h-8" />
+        <main className="min-h-screen bg-gray-50 px-3 py-10 sm:px-6">
+            <div className="mx-auto max-w-6xl rounded-2xl border border-gray-100 bg-white p-4 shadow-sm sm:p-8">
+                <header className="mb-8 text-center">
+                    <div className="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-cyan-50 text-cyan-700">
+                        <LayoutGrid className="h-8 w-8" aria-hidden="true" />
                     </div>
-                    <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900">
-                        Images to PDF Converter Online Free
-                    </h1>
-
-                    <p className="text-gray-600 mt-3 max-w-3xl mx-auto">
-                        Convert JPG, PNG, WebP images or a single-page PDF into a printable PDF
-                        sheet. Create 2, 4, 8 or more copies, use a custom grid, or arrange
-                        passport-size photos with cut lines. Save as PDF, PNG or JPG — free,
-                        private and without signup.
+                    <h1 className="text-3xl font-extrabold text-gray-900 sm:text-4xl">Print Image Copies on a PDF Sheet</h1>
+                    <p className="mx-auto mt-3 max-w-3xl leading-relaxed text-gray-700">
+                        Place one image, or a single-page PDF, several times on a printable sheet. Choose copies per page, a custom grid or a fixed
+                        photo size such as a passport photo, then preview the layout and save a PDF, PNG or JPG. The sheet is created in your browser;
+                        the file is not uploaded to our server. To combine different images into one PDF, use the JPG to PDF tool instead.
                     </p>
-                </div>
+                </header>
 
                 {!imgEl ? (
-                    <div
-                        onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
-                        onDragLeave={() => setDragOver(false)}
-                        onDrop={onDrop}
-                        onClick={() => !loading && inputRef.current?.click()}
-                        className={`cursor-pointer border-2 border-dashed rounded-2xl p-12 text-center transition ${dragOver ? 'border-cyan-500 bg-cyan-50' : 'border-gray-300 hover:bg-gray-50'}`}
-                    >
-                        <ImagePlus className="w-10 h-10 text-cyan-600 mx-auto mb-3" />
-                        <p className="font-semibold text-gray-800">
-                            {loading ? 'Reading your file...' : 'Click to choose a file, or drop it here'}
+                    <div>
+                        <div
+                            role="button"
+                            tabIndex={0}
+                            aria-label="Choose an image or single-page PDF"
+                            onKeyDown={onDropzoneKey}
+                            onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+                            onDragLeave={() => setDragOver(false)}
+                            onDrop={onDrop}
+                            onClick={() => !loading && inputRef.current?.click()}
+                            className={`cursor-pointer rounded-2xl border-2 border-dashed p-12 text-center transition focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-600 ${dragOver ? "border-cyan-600 bg-cyan-50" : "border-gray-300 hover:bg-gray-50"}`}
+                        >
+                            <ImagePlus className="mx-auto mb-3 h-10 w-10 text-cyan-700" aria-hidden="true" />
+                            <p className="font-semibold text-gray-900">
+                                {loading ? "Reading your file..." : "Click to choose a file, or drop it here"}
+                            </p>
+                            <p className="mt-1 text-xs text-gray-700">Image (JPG, PNG, WebP, GIF, BMP, AVIF) or a PDF with one page</p>
+                            <input
+                                ref={inputRef}
+                                type="file"
+                                accept="image/*,application/pdf,.pdf"
+                                className="hidden"
+                                onChange={(e: ChangeEvent<HTMLInputElement>) => { loadFile(e.target.files); e.target.value = ""; }}
+                            />
+                        </div>
+                        <p className="mt-3 text-center text-sm text-gray-700">
+                            Typical uses: passport-style photo sheets, multiple labels or cards on one page, or repeated artwork for printing.
                         </p>
-                        <p className="text-xs text-gray-500 mt-1">Image (JPG, PNG, WebP, GIF, BMP, AVIF) or a PDF with one page</p>
-                        <input
-                            ref={inputRef}
-                            type="file"
-                            accept="image/*,application/pdf,.pdf"
-                            className="hidden"
-                            onChange={(e: ChangeEvent<HTMLInputElement>) => { loadFile(e.target.files); e.target.value = ''; }}
-                        />
                     </div>
                 ) : (
                     <div className="space-y-5">
-                        <div className="flex items-center justify-between p-3 bg-cyan-50 rounded-xl border border-cyan-100">
+                        <div className="flex items-center justify-between rounded-xl border border-cyan-100 bg-cyan-50 p-3">
                             <div className="min-w-0">
-                                <p className="font-semibold text-gray-800 truncate">{file?.name}</p>
-                                <p className="text-xs text-cyan-700 font-medium">
-                                    {fromPdf && <span className="mr-2 px-1.5 py-0.5 rounded bg-cyan-600 text-white">PDF page</span>}
-                                    {imgEl.naturalWidth} × {imgEl.naturalHeight} px · {file ? formatBytes(file.size) : ''}
+                                <p className="truncate font-semibold text-gray-900">{file?.name}</p>
+                                <p className="text-xs font-medium text-cyan-900">
+                                    {fromPdf && <span className="mr-2 rounded bg-cyan-700 px-1.5 py-0.5 text-white">PDF page</span>}
+                                    {imgEl.naturalWidth} × {imgEl.naturalHeight} px · {file ? formatBytes(file.size) : ""}
                                 </p>
                             </div>
-                            <button type="button" onClick={resetAll} className="text-sm text-red-600 hover:underline font-medium shrink-0">Change file</button>
+                            <button type="button" onClick={resetAll} className="shrink-0 text-sm font-medium text-red-700 hover:underline">Choose another file</button>
                         </div>
 
-                        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-                            <div className="lg:col-span-2 space-y-4">
-                                <section className={cardCls}>
-                                    <h2 className="text-sm font-bold text-gray-800">Layout</h2>
+                        <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">
+                            <div className="space-y-4 lg:col-span-2">
+                                <section className={cardCls} aria-labelledby="layout-heading">
+                                    <h2 id="layout-heading" className="text-sm font-bold text-gray-900">Layout</h2>
                                     <div className="flex flex-wrap gap-2">
-                                        <button type="button" className={tabCls(mode === 'count')} onClick={() => setMode('count')}>Copies per sheet</button>
-                                        <button type="button" className={tabCls(mode === 'grid')} onClick={() => setMode('grid')}>Custom grid</button>
-                                        <button type="button" className={tabCls(mode === 'size')} onClick={() => setMode('size')}>Fixed photo size</button>
+                                        <button type="button" aria-pressed={mode === "count"} className={tabCls(mode === "count")} onClick={() => setMode("count")}>Copies per sheet</button>
+                                        <button type="button" aria-pressed={mode === "grid"} className={tabCls(mode === "grid")} onClick={() => setMode("grid")}>Custom grid</button>
+                                        <button type="button" aria-pressed={mode === "size"} className={tabCls(mode === "size")} onClick={() => setMode("size")}>Fixed photo size</button>
                                     </div>
 
-                                    {mode === 'count' && (
+                                    {mode === "count" && (
                                         <>
                                             <div className="flex flex-wrap gap-2">
                                                 {COUNT_CHIPS.map((n) => (
-                                                    <button key={n} type="button" className={chipCls(count === n)} onClick={() => setCount(n)}>{n}</button>
+                                                    <button key={n} type="button" aria-pressed={count === n} className={chipCls(count === n)} onClick={() => setCount(n)}>{n}</button>
                                                 ))}
                                             </div>
                                             <Field label="Or enter any number (1 to 200)">
                                                 <input type="number" min={1} max={200} className={inputCls} value={count}
                                                     onChange={(e) => setCount(clamp(Math.round(Number(e.target.value)) || 1, 1, 200))} />
                                             </Field>
-                                            <p className="text-xs text-gray-500">The tool picks the rows and columns that give the largest pictures.</p>
+                                            <p className="text-xs text-gray-700">The tool picks the rows and columns that give the largest pictures.</p>
                                         </>
                                     )}
 
-                                    {mode === 'grid' && (
+                                    {mode === "grid" && (
                                         <div className="grid grid-cols-2 gap-3">
                                             <Field label="Rows">
                                                 <input type="number" min={1} max={20} className={inputCls} value={rows}
@@ -676,7 +710,7 @@ export default function ImageSheetPage() {
                                         </div>
                                     )}
 
-                                    {mode === 'size' && (
+                                    {mode === "size" && (
                                         <>
                                             <Field label="Photo size">
                                                 <select className={inputCls} value={photoPreset} onChange={(e) => pickPhotoPreset(e.target.value)}>
@@ -686,25 +720,28 @@ export default function ImageSheetPage() {
                                             <div className="grid grid-cols-2 gap-3">
                                                 <Field label={`Width (${unit})`}>
                                                     <input type="number" min={1} step="0.1" className={inputCls} value={sizeW}
-                                                        onChange={(e) => { setPhotoPreset('custom'); setSizeW(Number(e.target.value) || 0); }} />
+                                                        onChange={(e) => { setPhotoPreset("custom"); setSizeW(Number(e.target.value) || 0); }} />
                                                 </Field>
                                                 <Field label={`Height (${unit})`}>
                                                     <input type="number" min={1} step="0.1" className={inputCls} value={sizeH}
-                                                        onChange={(e) => { setPhotoPreset('custom'); setSizeH(Number(e.target.value) || 0); }} />
+                                                        onChange={(e) => { setPhotoPreset("custom"); setSizeH(Number(e.target.value) || 0); }} />
                                                 </Field>
                                             </div>
                                             <Field label="Number of copies" hint="Leave at 0 to fill the whole page. A bigger number makes extra sheets.">
                                                 <input type="number" min={0} max={2000} className={inputCls} value={total}
                                                     onChange={(e) => setTotal(clamp(Math.round(Number(e.target.value)) || 0, 0, 2000))} />
                                             </Field>
-                                            <label className="flex items-center gap-2 text-sm text-gray-700">
-                                                <input type="checkbox" checked={allowRot} onChange={(e) => setAllowRot(e.target.checked)} className="accent-cyan-600" />
+                                            <label className="flex items-center gap-2 text-sm text-gray-800">
+                                                <input type="checkbox" checked={allowRot} onChange={(e) => setAllowRot(e.target.checked)} className="accent-cyan-700" />
                                                 Rotate photos 90° if that fits more on the page
                                             </label>
+                                            <p className="text-xs text-gray-700">
+                                                Check any official photo requirements yourself. This tool does not verify head size, background, or other rules.
+                                            </p>
                                         </>
                                     )}
 
-                                    {(mode !== 'size' || total === 0) && (
+                                    {(mode !== "size" || total === 0) && (
                                         <Field label="Number of identical sheets">
                                             <input type="number" min={1} max={100} className={inputCls} value={sheets}
                                                 onChange={(e) => setSheets(clamp(Math.round(Number(e.target.value)) || 1, 1, 100))} />
@@ -712,8 +749,8 @@ export default function ImageSheetPage() {
                                     )}
                                 </section>
 
-                                <section className={cardCls}>
-                                    <h2 className="text-sm font-bold text-gray-800">Page and spacing</h2>
+                                <section className={cardCls} aria-labelledby="page-heading">
+                                    <h2 id="page-heading" className="text-sm font-bold text-gray-900">Page and spacing</h2>
                                     <div className="grid grid-cols-2 gap-3">
                                         <Field label="Paper size">
                                             <select className={inputCls} value={pagePreset} onChange={(e) => setPagePreset(e.target.value)}>
@@ -728,7 +765,7 @@ export default function ImageSheetPage() {
                                             </select>
                                         </Field>
                                     </div>
-                                    {pagePreset === 'custom' && (
+                                    {pagePreset === "custom" && (
                                         <div className="grid grid-cols-2 gap-3">
                                             <Field label={`Page width (${unit})`}>
                                                 <input type="number" min={1} step="0.1" className={inputCls} value={customW} onChange={(e) => setCustomW(Number(e.target.value) || 0)} />
@@ -746,9 +783,9 @@ export default function ImageSheetPage() {
                                                 <option value="landscape">Landscape</option>
                                             </select>
                                         </Field>
-                                        {mode === 'size' ? (
+                                        {mode === "size" ? (
                                             <Field label="Position">
-                                                <select className={inputCls} value={align} onChange={(e) => setAlign(e.target.value as 'center' | 'topleft')}>
+                                                <select className={inputCls} value={align} onChange={(e) => setAlign(e.target.value as "center" | "topleft")}>
                                                     <option value="center">Centered</option>
                                                     <option value="topleft">Top left</option>
                                                 </select>
@@ -763,8 +800,8 @@ export default function ImageSheetPage() {
                                     </div>
                                 </section>
 
-                                <section className={cardCls}>
-                                    <h2 className="text-sm font-bold text-gray-800">Image and cut lines</h2>
+                                <section className={cardCls} aria-labelledby="image-heading">
+                                    <h2 id="image-heading" className="text-sm font-bold text-gray-900">Image and cut lines</h2>
                                     <div className="grid grid-cols-2 gap-3">
                                         <Field label="Fit in each box">
                                             <select className={inputCls} value={fit} onChange={(e) => setFit(e.target.value as Fit)}>
@@ -777,26 +814,26 @@ export default function ImageSheetPage() {
                                             <input type="color" value={bg} onChange={(e) => setBg(e.target.value)} className="h-10 w-full rounded-lg border border-gray-300 bg-white" />
                                         </Field>
                                     </div>
-                                    <div className="flex items-center gap-2">
-                                        <button type="button" onClick={() => setRot((r) => (r + 270) % 360)} className="flex items-center gap-1 px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white hover:bg-gray-100">
-                                            <RotateCcw className="w-4 h-4" /> Rotate left
+                                    <div className="flex flex-wrap items-center gap-2">
+                                        <button type="button" onClick={() => setRot((r) => (r + 270) % 360)} className="flex items-center gap-1 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm hover:bg-gray-100">
+                                            <RotateCcw className="h-4 w-4" aria-hidden="true" /> Rotate left
                                         </button>
-                                        <button type="button" onClick={() => setRot((r) => (r + 90) % 360)} className="flex items-center gap-1 px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white hover:bg-gray-100">
-                                            <RotateCw className="w-4 h-4" /> Rotate right
+                                        <button type="button" onClick={() => setRot((r) => (r + 90) % 360)} className="flex items-center gap-1 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm hover:bg-gray-100">
+                                            <RotateCw className="h-4 w-4" aria-hidden="true" /> Rotate right
                                         </button>
-                                        <span className="text-xs text-gray-500">{rot}°</span>
+                                        <span className="text-xs text-gray-700">{rot}°</span>
                                     </div>
-                                    <label className="flex items-center gap-2 text-sm text-gray-700">
-                                        <input type="checkbox" checked={cut} onChange={(e) => setCut(e.target.checked)} className="accent-cyan-600" />
+                                    <label className="flex items-center gap-2 text-sm text-gray-800">
+                                        <input type="checkbox" checked={cut} onChange={(e) => setCut(e.target.checked)} className="accent-cyan-700" />
                                         Draw cut lines around each copy
                                     </label>
                                     {cut && (
                                         <div className="flex items-center gap-4">
-                                            <label className="flex items-center gap-2 text-sm text-gray-700">
-                                                <input type="checkbox" checked={dashed} onChange={(e) => setDashed(e.target.checked)} className="accent-cyan-600" />
+                                            <label className="flex items-center gap-2 text-sm text-gray-800">
+                                                <input type="checkbox" checked={dashed} onChange={(e) => setDashed(e.target.checked)} className="accent-cyan-700" />
                                                 Dashed
                                             </label>
-                                            <label className="flex items-center gap-2 text-sm text-gray-700">
+                                            <label className="flex items-center gap-2 text-sm text-gray-800">
                                                 Color <input type="color" value={cutColor} onChange={(e) => setCutColor(e.target.value)} />
                                             </label>
                                         </div>
@@ -804,51 +841,51 @@ export default function ImageSheetPage() {
                                 </section>
                             </div>
 
-                            <div className="lg:col-span-3 space-y-4">
+                            <div className="space-y-4 lg:col-span-3">
                                 <div className="rounded-2xl border border-gray-200 bg-gray-100 p-4">
                                     {L ? (
                                         <>
-                                            <div className="mx-auto shadow-md bg-white" style={{ maxWidth: 560 }}>
-                                                <canvas ref={canvasRef} style={{ width: '100%', height: 'auto', display: 'block' }} />
+                                            <div className="mx-auto bg-white shadow-md" style={{ maxWidth: 560 }}>
+                                                <canvas ref={canvasRef} role="img" aria-label="Preview of the printable sheet" style={{ width: "100%", height: "auto", display: "block" }} />
                                             </div>
                                             {pageCount > 1 && (
-                                                <div className="mt-3 flex items-center justify-center gap-3 text-sm text-gray-700">
-                                                    <button type="button" className="p-1.5 rounded-lg border bg-white disabled:opacity-40" disabled={shownSheet === 0} onClick={() => setSheetIdx(shownSheet - 1)}><ChevronLeft className="w-4 h-4" /></button>
+                                                <div className="mt-3 flex items-center justify-center gap-3 text-sm text-gray-800">
+                                                    <button type="button" aria-label="Previous sheet" className="rounded-lg border bg-white p-1.5 disabled:opacity-40" disabled={shownSheet === 0} onClick={() => setSheetIdx(shownSheet - 1)}><ChevronLeft className="h-4 w-4" /></button>
                                                     Sheet {shownSheet + 1} of {pageCount}
-                                                    <button type="button" className="p-1.5 rounded-lg border bg-white disabled:opacity-40" disabled={shownSheet >= pageCount - 1} onClick={() => setSheetIdx(shownSheet + 1)}><ChevronRight className="w-4 h-4" /></button>
+                                                    <button type="button" aria-label="Next sheet" className="rounded-lg border bg-white p-1.5 disabled:opacity-40" disabled={shownSheet >= pageCount - 1} onClick={() => setSheetIdx(shownSheet + 1)}><ChevronRight className="h-4 w-4" /></button>
                                                 </div>
                                             )}
                                         </>
                                     ) : (
-                                        <div className="flex items-start gap-2 p-4 bg-red-50 border border-red-200 text-red-700 rounded-xl text-sm">
-                                            <AlertCircle className="w-5 h-5 shrink-0" />
-                                            <span>{!layoutRes.ok ? layoutRes.error : ''}</span>
+                                        <div role="alert" className="flex items-start gap-2 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">
+                                            <AlertCircle className="h-5 w-5 shrink-0" aria-hidden="true" />
+                                            <span>{!layoutRes.ok ? layoutRes.error : ""}</span>
                                         </div>
                                     )}
                                 </div>
 
                                 {L && (
-                                    <div className="text-sm text-gray-700 space-y-1 p-4 rounded-2xl border border-gray-200">
+                                    <div className="space-y-1 rounded-2xl border border-gray-200 p-4 text-sm text-gray-800" aria-live="polite">
                                         <p>
-                                            <b>{L.perPage}</b> per sheet ({L.cols} × {L.rows}), <b>{totalCopies}</b> in total on {pageCount} {pageCount === 1 ? 'sheet' : 'sheets'}.
+                                            <b>{L.perPage}</b> per sheet ({L.cols} × {L.rows}), <b>{totalCopies}</b> in total on {pageCount} {pageCount === 1 ? "sheet" : "sheets"}.
                                             Each box is {round2(L.cw / f)} × {round2(L.ch / f)} {unit}, {L.orient}.
                                         </p>
                                         {effDpi !== null && (
-                                            <p className={effDpi < 150 ? 'text-amber-700 flex items-start gap-1' : 'text-gray-500 flex items-start gap-1'}>
-                                                <Info className="w-4 h-4 mt-0.5 shrink-0" />
+                                            <p className={effDpi < 150 ? "flex items-start gap-1 text-amber-800" : "flex items-start gap-1 text-gray-700"}>
+                                                <Info className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
                                                 <span>
-                                                    Print resolution about {effDpi} DPI.
-                                                    {effDpi < 150 ? ' This image may look blurry at this size. Use a larger original or fewer, smaller copies.' : ' This is good for printing.'}
-                                                    {fromPdf && ' The PDF page was drawn as a picture at up to 300 DPI of its original size.'}
+                                                    Estimated print resolution about {effDpi} DPI.
+                                                    {effDpi < 150 ? " This image may look blurry at this size. Use a larger original or fewer, smaller copies." : " This is usually adequate for printing, but check a test print."}
+                                                    {fromPdf && " The PDF page was drawn as a picture at up to 300 DPI of its original size."}
                                                 </span>
                                             </p>
                                         )}
                                     </div>
                                 )}
 
-                                <section className={cardCls}>
-                                    <h2 className="text-sm font-bold text-gray-800">Save</h2>
-                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                <section className={cardCls} aria-labelledby="save-heading">
+                                    <h2 id="save-heading" className="text-sm font-bold text-gray-900">Save</h2>
+                                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                                         <Field label="Format">
                                             <select className={inputCls} value={format} onChange={(e) => setFormat(e.target.value as Format)}>
                                                 <option value="pdf">PDF (all sheets)</option>
@@ -865,19 +902,19 @@ export default function ImageSheetPage() {
                                             </select>
                                         </Field>
                                         <Field label="File name">
-                                            <div className="flex items-center border border-gray-300 rounded-lg overflow-hidden bg-white">
-                                                <input value={outName} onChange={(e) => setOutName(e.target.value)} className="flex-1 min-w-0 px-3 py-2 text-sm focus:outline-none" />
-                                                <span className="px-2 text-xs text-gray-500 bg-gray-50 py-2.5">.{ext}</span>
+                                            <div className="flex items-center overflow-hidden rounded-lg border border-gray-300 bg-white">
+                                                <input value={outName} onChange={(e) => setOutName(e.target.value)} className="min-w-0 flex-1 px-3 py-2 text-sm focus:outline-none" />
+                                                <span className="bg-gray-50 px-2 py-2.5 text-xs text-gray-700">.{ext}</span>
                                             </div>
                                         </Field>
                                     </div>
-                                    {format !== 'pdf' && pageCount > 1 && (
-                                        <p className="text-xs text-amber-700">PNG and JPG save the first sheet only. Choose PDF to get every sheet.</p>
+                                    {format !== "pdf" && pageCount > 1 && (
+                                        <p className="text-xs text-amber-800">PNG and JPG save the first sheet only. Choose PDF to get every sheet.</p>
                                     )}
-                                    <p className="text-xs text-gray-500">When printing, choose Actual size or 100% so the copies keep their exact size.</p>
+                                    <p className="text-xs text-gray-700">When printing, choose Actual size or 100% so the copies keep their exact size. Measure a test print before printing many copies.</p>
                                     <ProcessButton
                                         onClick={handleCreate}
-                                        loading={status === 'processing'}
+                                        loading={status === "processing"}
                                         disabled={!L}
                                         label={`Create ${ext.toUpperCase()}`}
                                         loadingLabel="Creating..."
@@ -889,16 +926,25 @@ export default function ImageSheetPage() {
                 )}
 
                 {loadError && (
-                    <div className="mt-6 flex items-start gap-2 p-4 bg-red-50 border border-red-200 text-red-700 rounded-xl text-sm">
-                        <AlertCircle className="w-5 h-5 shrink-0" />
+                    <div role="alert" className="mt-6 flex items-start gap-2 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-900">
+                        <AlertCircle className="h-5 w-5 shrink-0" aria-hidden="true" />
                         <span>
                             {loadError.msg}
                             {loadError.split && (
-                                <> <Link href="/split-pdf" className="underline font-semibold">Open Split PDF</Link></>
+                                <> <Link href="/split-pdf" className="font-semibold underline">Open Split PDF</Link></>
                             )}
                         </span>
                     </div>
                 )}
+
+                <aside className="mt-6 rounded-xl border border-green-100 bg-green-50 p-4 text-sm leading-relaxed text-green-950">
+                    <div className="flex items-start gap-2">
+                        <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0" aria-hidden="true" />
+                        <p>
+                            <strong>Privacy and limitations:</strong> your image or PDF page is processed in your browser and is not uploaded to our server for this tool. Very large images or high DPI settings may exceed browser memory. Colors can differ between screen and printer; check a test print.
+                        </p>
+                    </div>
+                </aside>
             </div>
 
             <ProcessingModal
@@ -917,11 +963,11 @@ export default function ImageSheetPage() {
             <ToolSeoContent
                 id="image-sheet"
                 steps={[
-                    'Upload a JPG, PNG, WebP image or select a single-page PDF.',
-                    'Choose how many copies you need, create a custom grid, or select a fixed photo size such as passport photo.',
-                    'Set the paper size, orientation, margin, gap, image fit, rotation and cut lines.',
-                    'Check the live preview to confirm the sheet layout before creating the file.',
-                    'Choose PDF, PNG or JPG, then click Create. Print the PDF at Actual size or 100% for accurate dimensions.',
+                    "Choose a JPG, PNG, WebP image or a single-page PDF from your device.",
+                    "Choose copies per sheet, a custom grid, or a fixed photo size such as a passport-style photo.",
+                    "Set paper size, orientation, margin, gap, image fit, rotation and optional cut lines.",
+                    "Check the live preview and the estimated print resolution before creating the file.",
+                    "Save as PDF, PNG or JPG. Print at Actual size or 100% and measure a test print first.",
                 ]}
             />
         </main>

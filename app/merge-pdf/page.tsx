@@ -1,18 +1,35 @@
-'use client';
+"use client";
 
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { PDFDocument } from 'pdf-lib';
+import { useEffect, useMemo, useRef, useState } from "react";
+import type { DragEvent } from "react";
+import { PDFDocument } from "pdf-lib";
 import {
-    Files, Trash2, ArrowUp, ArrowDown, GripVertical, ChevronDown, ChevronUp,
-    ArrowDownAZ, ArrowUpZA, ArrowUpDown, AlertCircle, Check,
-} from 'lucide-react';
-import FileDropzone from '@/components/pdf/FileDropzone';
-import ProcessButton from '@/components/pdf/ProcessButton';
-import ProcessingModal, { ProcessStatus } from '@/components/pdf/ProcessingModal';
+    AlertCircle,
+    ArrowDown,
+    ArrowDownAZ,
+    ArrowUp,
+    ArrowUpAZ,
+    ArrowUpDown,
+    Check,
+    ChevronDown,
+    ChevronUp,
+    Files,
+    GripVertical,
+    ShieldCheck,
+    Trash2,
+} from "lucide-react";
+import FileDropzone from "@/components/pdf/FileDropzone";
+import ProcessButton from "@/components/pdf/ProcessButton";
+import ProcessingModal, { ProcessStatus } from "@/components/pdf/ProcessingModal";
 import {
-    uid, formatBytes, bytesToBlob, parsePageRange, getPdfPageCount, renderPdfThumbnails,
-} from '@/lib/pdf-utils';
-import ToolSeoContent from '@/components/ToolSeoContent';
+    uid,
+    formatBytes,
+    bytesToBlob,
+    parsePageRange,
+    getPdfPageCount,
+    renderPdfThumbnails,
+} from "@/lib/pdf-utils";
+import ToolSeoContent from "@/components/ToolSeoContent";
 
 interface Item {
     id: string;
@@ -26,129 +43,180 @@ interface Item {
     error?: string;
 }
 
-const tick = () => new Promise<void>((r) => setTimeout(r, 30));
+const tick = () => new Promise<void>((resolve) => setTimeout(resolve, 30));
 
-function selectedToRange(sel: boolean[]): string {
-    if (sel.every(Boolean)) return '';
-    const parts: string[] = [];
-    let i = 0;
-    while (i < sel.length) {
-        if (!sel[i]) { i++; continue; }
-        let j = i;
-        while (j + 1 < sel.length && sel[j + 1]) j++;
-        parts.push(i === j ? `${i + 1}` : `${i + 1}-${j + 1}`);
-        i = j + 1;
+function selectedToRange(selected: boolean[]): string {
+    if (selected.length > 0 && selected.every(Boolean)) return "";
+    const ranges: string[] = [];
+    let index = 0;
+    while (index < selected.length) {
+        if (!selected[index]) {
+            index++;
+            continue;
+        }
+        let end = index;
+        while (end + 1 < selected.length && selected[end + 1]) end++;
+        ranges.push(index === end ? `${index + 1}` : `${index + 1}-${end + 1}`);
+        index = end + 1;
     }
-    return parts.join(', ');
+    return ranges.join(", ");
+}
+
+function safePdfName(value: string): string {
+    const cleaned = value.trim().replace(/\.pdf$/i, "").replace(/[\\/:*?"<>|]/g, "_");
+    return `${cleaned || "merged"}.pdf`;
 }
 
 export default function MergePDFPage() {
     const [items, setItems] = useState<Item[]>([]);
-    const [outName, setOutName] = useState('merged');
+    const [outName, setOutName] = useState("merged");
     const [error, setError] = useState<string | null>(null);
     const [dragId, setDragId] = useState<string | null>(null);
     const [overId, setOverId] = useState<string | null>(null);
-
-    const [status, setStatus] = useState<ProcessStatus>('idle');
+    const [status, setStatus] = useState<ProcessStatus>("idle");
     const [progress, setProgress] = useState(0);
-    const [message, setMessage] = useState('');
+    const [message, setMessage] = useState("");
     const [result, setResult] = useState<Blob | null>(null);
     const [modalError, setModalError] = useState<string | null>(null);
+    const [resultInfo, setResultInfo] = useState<{ size: number; pageCount: number } | null>(null);
     const cancelRef = useRef(false);
-    const mounted = useRef(true);
+    const mountedRef = useRef(false);
+    const previewUrlsRef = useRef<Set<string>>(new Set());
 
     useEffect(() => {
-        mounted.current = true;
-        return () => { mounted.current = false; };
+        mountedRef.current = true;
+        return () => {
+            mountedRef.current = false;
+            previewUrlsRef.current.forEach((url) => URL.revokeObjectURL(url));
+            previewUrlsRef.current.clear();
+        };
     }, []);
 
-    const update = (id: string, patch: Partial<Item> | ((it: Item) => Partial<Item>)) =>
-        setItems((prev) => prev.map((it) =>
-            it.id === id ? { ...it, ...(typeof patch === 'function' ? patch(it) : patch) } : it
+    const update = (id: string, patch: Partial<Item> | ((item: Item) => Partial<Item>)) => {
+        setItems((previous) => previous.map((item) =>
+            item.id === id
+                ? { ...item, ...(typeof patch === "function" ? patch(item) : patch) }
+                : item
         ));
+    };
 
     const addFiles = async (files: File[]) => {
         setResult(null);
+        setResultInfo(null);
         setError(null);
+
         for (const file of files) {
             const id = uid();
+            const isPdf = file.type === "application/pdf" || /\.pdf$/i.test(file.name);
+            if (!isPdf) {
+                setError(`“${file.name}” is not a PDF. Choose a .pdf file.`);
+                continue;
+            }
             try {
                 const pageCount = await getPdfPageCount(file);
-                setItems((prev) => [...prev, {
-                    id, file, pageCount, range: '', expanded: false,
-                    selected: Array(pageCount).fill(true), thumbs: {}, thumbsStarted: false,
+                if (!mountedRef.current) return;
+                setItems((previous) => [...previous, {
+                    id,
+                    file,
+                    pageCount,
+                    range: "",
+                    expanded: false,
+                    selected: Array(pageCount).fill(true),
+                    thumbs: {},
+                    thumbsStarted: false,
                 }]);
             } catch {
-                setError(`"${file.name}" could not be read. It may be corrupted or password protected.`);
+                setError(`“${file.name}” could not be read. It may be damaged or password-protected. Password-protected PDFs are not supported by this tool.`);
             }
         }
     };
 
-    const toggleExpand = (it: Item) => {
-        update(it.id, { expanded: !it.expanded });
-        if (!it.thumbsStarted) {
-            update(it.id, { thumbsStarted: true, expanded: true });
-            renderPdfThumbnails(
-                it.file,
-                (idx, url) => {
-                    if (!mounted.current) return;
-                    setItems((prev) => prev.map((x) =>
-                        x.id === it.id ? { ...x, thumbs: { ...x.thumbs, [idx]: url } } : x
-                    ));
-                },
-                () => !mounted.current
-            ).catch(() => setError('Could not generate page previews.'));
-        }
+    const toggleExpand = (item: Item) => {
+        const shouldExpand = !item.expanded;
+        update(item.id, { expanded: shouldExpand });
+        if (item.thumbsStarted) return;
+
+        update(item.id, { thumbsStarted: true, expanded: true });
+        renderPdfThumbnails(
+            item.file,
+            (index, url) => {
+                if (!mountedRef.current) {
+                    URL.revokeObjectURL(url);
+                    return;
+                }
+                previewUrlsRef.current.add(url);
+                setItems((previous) => previous.map((current) =>
+                    current.id === item.id
+                        ? { ...current, thumbs: { ...current.thumbs, [index]: url } }
+                        : current
+                ));
+            },
+            () => !mountedRef.current
+        ).catch(() => {
+            if (mountedRef.current) setError(`Page previews could not be generated for “${item.file.name}”. You can still merge it.`);
+        });
     };
 
-    const setRange = (it: Item, value: string) => {
-        const parsed = parsePageRange(value, it.pageCount);
+    const setRange = (item: Item, value: string) => {
+        if (value.trim() === "") {
+            update(item.id, { range: "", selected: Array(item.pageCount).fill(true), error: undefined });
+            return;
+        }
+        const parsed = parsePageRange(value, item.pageCount);
         if (parsed) {
-            const sel = Array(it.pageCount).fill(false);
-            parsed.forEach((p) => (sel[p] = true));
-            update(it.id, { range: value, selected: sel, error: undefined });
+            const selected = Array(item.pageCount).fill(false);
+            parsed.forEach((pageIndex) => { selected[pageIndex] = true; });
+            update(item.id, { range: value, selected, error: undefined });
         } else {
-            update(it.id, { range: value, error: `Use pages 1-${it.pageCount}, e.g. 1-3, 5` });
+            update(item.id, { range: value, error: `Enter page numbers from 1 to ${item.pageCount}, for example 1-3, 5.` });
         }
     };
 
-    const togglePage = (it: Item, idx: number) => {
-        const sel = [...it.selected];
-        sel[idx] = !sel[idx];
-        update(it.id, { selected: sel, range: selectedToRange(sel), error: undefined });
+    const togglePage = (item: Item, index: number) => {
+        const selected = [...item.selected];
+        selected[index] = !selected[index];
+        update(item.id, { selected, range: selectedToRange(selected), error: undefined });
     };
 
-    const setAllPages = (it: Item, value: boolean) => {
-        const sel = Array(it.pageCount).fill(value);
-        update(it.id, { selected: sel, range: '', error: undefined });
+    const setAllPages = (item: Item, value: boolean) => {
+        update(item.id, { selected: Array(item.pageCount).fill(value), range: "", error: undefined });
     };
 
-    const move = (index: number, dir: -1 | 1) => {
-        setItems((prev) => {
-            const next = [...prev];
-            const t = index + dir;
-            if (t < 0 || t >= next.length) return prev;
-            [next[index], next[t]] = [next[t], next[index]];
+    const move = (index: number, direction: -1 | 1) => {
+        setItems((previous) => {
+            const next = [...previous];
+            const target = index + direction;
+            if (target < 0 || target >= next.length) return previous;
+            [next[index], next[target]] = [next[target], next[index]];
             return next;
         });
     };
 
-    const remove = (id: string) => setItems((prev) => prev.filter((i) => i.id !== id));
+    const remove = (id: string) => {
+        const item = items.find((current) => current.id === id);
+        item && Object.values(item.thumbs).forEach((url) => {
+            URL.revokeObjectURL(url);
+            previewUrlsRef.current.delete(url);
+        });
+        setItems((previous) => previous.filter((current) => current.id !== id));
+        setResult(null);
+        setResultInfo(null);
+    };
 
-    const sortBy = (dir: 'asc' | 'desc') =>
-        setItems((prev) => [...prev].sort((a, b) =>
-            dir === 'asc'
-                ? a.file.name.localeCompare(b.file.name, undefined, { numeric: true })
-                : b.file.name.localeCompare(a.file.name, undefined, { numeric: true })
-        ));
+    const sortBy = (direction: "asc" | "desc") => {
+        setItems((previous) => [...previous].sort((a, b) => {
+            const order = a.file.name.localeCompare(b.file.name, undefined, { numeric: true, sensitivity: "base" });
+            return direction === "asc" ? order : -order;
+        }));
+    };
 
     const onDrop = (targetId: string) => {
         if (!dragId || dragId === targetId) return;
-        setItems((prev) => {
-            const from = prev.findIndex((i) => i.id === dragId);
-            const to = prev.findIndex((i) => i.id === targetId);
-            if (from < 0 || to < 0) return prev;
-            const next = [...prev];
+        setItems((previous) => {
+            const from = previous.findIndex((item) => item.id === dragId);
+            const to = previous.findIndex((item) => item.id === targetId);
+            if (from < 0 || to < 0) return previous;
+            const next = [...previous];
             const [moved] = next.splice(from, 1);
             next.splice(to, 0, moved);
             return next;
@@ -157,251 +225,280 @@ export default function MergePDFPage() {
         setOverId(null);
     };
 
-    const totalPages = useMemo(
-        () => items.reduce((s, i) => s + i.selected.filter(Boolean).length, 0),
+    const totalSelectedPages = useMemo(
+        () => items.reduce((sum, item) => sum + item.selected.filter(Boolean).length, 0),
         [items]
     );
-    const hasErrors = items.some((i) => i.error);
-    const canMerge = items.length > 0 && totalPages > 0 && !hasErrors &&
-        (items.length > 1 || totalPages < (items[0]?.pageCount ?? 0));
+    const hasItemErrors = items.some((item) => Boolean(item.error));
+    const hasUnfinishedRange = items.some((item) => Boolean(item.error));
+    const canMerge = items.length > 0 && totalSelectedPages > 0 && !hasUnfinishedRange;
 
     const handleMerge = async () => {
+        if (!canMerge || status === "processing") return;
         cancelRef.current = false;
         setResult(null);
+        setResultInfo(null);
         setError(null);
         setModalError(null);
         setProgress(0);
-        setMessage('Starting...');
-        setStatus('processing');
+        setMessage("Preparing selected pages...");
+        setStatus("processing");
         await tick();
 
         try {
-            const merged = await PDFDocument.create();
-            const total = items.length;
+            const output = await PDFDocument.create();
+            const sourceFiles = items.filter((item) => item.selected.some(Boolean));
+            const totalFiles = sourceFiles.length;
+            let copiedPageCount = 0;
 
-            for (let idx = 0; idx < total; idx++) {
+            for (let index = 0; index < sourceFiles.length; index++) {
                 if (cancelRef.current) return;
-                const it = items[idx];
-                setMessage(`Merging file ${idx + 1} of ${total}: ${it.file.name}`);
+                const item = sourceFiles[index];
+                const pageIndexes = item.selected
+                    .map((isSelected, pageIndex) => isSelected ? pageIndex : -1)
+                    .filter((pageIndex) => pageIndex >= 0);
+
+                setMessage(`Adding selected pages from file ${index + 1} of ${totalFiles}: ${item.file.name}`);
                 await tick();
 
-                const indices = it.selected.map((s, i) => (s ? i : -1)).filter((i) => i >= 0);
-                if (indices.length) {
-                    const src = await PDFDocument.load(await it.file.arrayBuffer(), { ignoreEncryption: true });
-                    const pages = await merged.copyPages(src, indices);
-                    pages.forEach((p) => merged.addPage(p));
-                }
-
-                setProgress(((idx + 1) / total) * 90);
+                // Do not use ignoreEncryption:true: pdf-lib cannot decrypt encrypted files.
+                const source = await PDFDocument.load(await item.file.arrayBuffer());
+                const copiedPages = await output.copyPages(source, pageIndexes);
+                copiedPages.forEach((page) => output.addPage(page));
+                copiedPageCount += copiedPages.length;
+                setProgress(((index + 1) / totalFiles) * 85);
                 await tick();
             }
 
             if (cancelRef.current) return;
-            setMessage('Saving merged PDF...');
-            setProgress(95);
-            await tick();
-            const bytes = await merged.save();
+            if (copiedPageCount === 0) throw new Error("No pages were selected.");
 
+            setMessage("Saving the merged PDF...");
+            setProgress(92);
+            await tick();
+            const bytes = await output.save();
             if (cancelRef.current) return;
-            setResult(bytesToBlob(bytes));
+
+            const blob = bytesToBlob(bytes);
+            setResult(blob);
+            setResultInfo({ size: blob.size, pageCount: copiedPageCount });
             setProgress(100);
-            await new Promise((r) => setTimeout(r, 400));
-            setStatus('done');
-        } catch (e) {
-            console.error(e);
-            setModalError('Failed to merge PDFs. Please check your files and try again.');
-            setStatus('error');
+            await new Promise((resolve) => setTimeout(resolve, 350));
+            if (mountedRef.current && !cancelRef.current) setStatus("done");
+        } catch (caught) {
+            console.error("PDF merge failed:", caught);
+            setModalError(
+                caught instanceof Error && caught.message === "No pages were selected."
+                    ? caught.message
+                    : "Merging failed. A PDF may be damaged, password-protected, or use unsupported features. Check the files and try again."
+            );
+            setStatus("error");
         }
     };
 
     const handleCancel = () => {
         cancelRef.current = true;
-        setStatus('idle');
+        setStatus("idle");
         setProgress(0);
     };
 
-    const closeModal = () => { setStatus('idle'); setModalError(null); };
+    const closeModal = () => {
+        setStatus("idle");
+        setModalError(null);
+    };
 
     const reset = () => {
+        cancelRef.current = true;
+        previewUrlsRef.current.forEach((url) => URL.revokeObjectURL(url));
+        previewUrlsRef.current.clear();
         setItems([]);
         setResult(null);
+        setResultInfo(null);
         setError(null);
-        setStatus('idle');
+        setStatus("idle");
         setProgress(0);
-        setOutName('merged');
+        setMessage("");
+        setModalError(null);
+        setOutName("merged");
+        setDragId(null);
+        setOverId(null);
     };
 
-    const safeName = (outName.trim() || 'merged').replace(/[\\/:*?"<>|]/g, '_');
+    const safeName = safePdfName(outName);
 
     return (
-        <main className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-5xl mx-auto bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sm:p-10">
-                <div className="text-center mb-8">
-                    <div className="inline-flex items-center justify-center w-16 h-16 bg-red-50 text-red-600 rounded-2xl mb-4">
-                        <Files className="w-8 h-8" />
+        <main className="min-h-screen bg-gray-50 px-4 py-10 sm:px-6 lg:px-8">
+            <div className="mx-auto max-w-5xl rounded-2xl border border-gray-100 bg-white p-6 shadow-sm sm:p-10">
+                <header className="mb-8 text-center">
+                    <div className="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-red-50 text-red-700">
+                        <Files className="h-8 w-8" aria-hidden="true" />
                     </div>
-                    <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900">
-                        Merge PDF Files Online Free
-                    </h1>
-
-                    <p className="text-gray-600 mt-3 max-w-3xl mx-auto">
-                        Combine multiple PDF files into one document online for free. Arrange the
-                        page order, select only the pages you need, merge invoices, reports, scans
-                        or assignments, and download your combined PDF directly from your browser.
+                    <h1 className="text-3xl font-extrabold text-gray-900 sm:text-4xl">Merge PDF Files Online</h1>
+                    <p className="mx-auto mt-3 max-w-3xl leading-relaxed text-gray-600">
+                        Combine selected pages from multiple PDFs into one file. Arrange documents in the final order, preview page thumbnails, and include only the pages you need. This tool processes files in your browser; it does not upload them to our server for merging.
                     </p>
-                </div>
+                </header>
 
-                {items.length === 0 ? (
-                    <FileDropzone onFiles={addFiles} />
-                ) : (
-                    <>
-                        <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
-                            <h3 className="text-lg font-semibold text-gray-800">
-                                Files ({items.length}) · {totalPages} pages selected
-                            </h3>
-                            <div className="flex flex-wrap gap-2">
-                                <button type="button" onClick={() => sortBy('asc')} className="px-3 py-2 text-sm border rounded-lg hover:bg-gray-50 flex items-center gap-1">
-                                    <ArrowDownAZ className="w-4 h-4" /> A–Z
-                                </button>
-                                <button type="button" onClick={() => sortBy('desc')} className="px-3 py-2 text-sm border rounded-lg hover:bg-gray-50 flex items-center gap-1">
-                                    <ArrowUpZA className="w-4 h-4" /> Z–A
-                                </button>
-                                <button type="button" onClick={() => setItems((p) => [...p].reverse())} className="px-3 py-2 text-sm border rounded-lg hover:bg-gray-50 flex items-center gap-1">
-                                    <ArrowUpDown className="w-4 h-4" /> Reverse
-                                </button>
-                                <button type="button" onClick={reset} className="px-3 py-2 text-sm border border-red-200 text-red-600 rounded-lg hover:bg-red-50">
-                                    Clear all
-                                </button>
-                            </div>
+                <section aria-labelledby="merge-tool-heading">
+                    <h2 id="merge-tool-heading" className="sr-only">Select and arrange PDF files to merge</h2>
+                    {items.length === 0 ? (
+                        <div>
+                            <FileDropzone onFiles={addFiles} />
+                            <p className="mt-3 text-center text-sm text-gray-500">Add two or more PDFs to combine documents. You can also select pages from a single PDF to create a smaller PDF.</p>
                         </div>
+                    ) : (
+                        <>
+                            <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+                                <div>
+                                    <h2 className="text-lg font-semibold text-gray-800">Merge order and page selection</h2>
+                                    <p className="text-sm text-gray-600">{items.length} {items.length === 1 ? "file" : "files"} · {totalSelectedPages} selected {totalSelectedPages === 1 ? "page" : "pages"}</p>
+                                </div>
+                                <div className="flex flex-wrap gap-2">
+                                    <button type="button" onClick={() => sortBy("asc")} className="flex items-center gap-1 rounded-lg border px-3 py-2 text-sm hover:bg-gray-50" aria-label="Sort files A to Z">
+                                        <ArrowDownAZ className="h-4 w-4" /> A–Z
+                                    </button>
+                                    <button type="button" onClick={() => sortBy("desc")} className="flex items-center gap-1 rounded-lg border px-3 py-2 text-sm hover:bg-gray-50" aria-label="Sort files Z to A">
+                                        <ArrowUpAZ className="h-4 w-4" /> Z–A
+                                    </button>
+                                    <button type="button" onClick={() => setItems((previous) => [...previous].reverse())} className="flex items-center gap-1 rounded-lg border px-3 py-2 text-sm hover:bg-gray-50" aria-label="Reverse file order">
+                                        <ArrowUpDown className="h-4 w-4" /> Reverse
+                                    </button>
+                                    <button type="button" onClick={reset} className="rounded-lg border border-red-200 px-3 py-2 text-sm text-red-700 hover:bg-red-50">Clear all</button>
+                                </div>
+                            </div>
 
-                        <ul className="space-y-3">
-                            {items.map((it, index) => {
-                                const count = it.selected.filter(Boolean).length;
-                                return (
-                                    <li
-                                        key={it.id}
-                                        draggable
-                                        onDragStart={() => setDragId(it.id)}
-                                        onDragOver={(e) => { e.preventDefault(); setOverId(it.id); }}
-                                        onDragEnd={() => { setDragId(null); setOverId(null); }}
-                                        onDrop={() => onDrop(it.id)}
-                                        className={`rounded-xl border bg-gray-50 transition ${overId === it.id && dragId !== it.id ? 'border-red-500 ring-2 ring-red-200' : 'border-gray-200'
-                                            } ${dragId === it.id ? 'opacity-50' : ''}`}
-                                    >
-                                        <div className="flex flex-wrap items-center gap-3 p-3">
-                                            <GripVertical className="w-5 h-5 text-gray-400 cursor-grab shrink-0" />
-                                            <span className="w-7 h-7 rounded-full bg-red-100 text-red-700 text-xs font-bold flex items-center justify-center shrink-0">
-                                                {index + 1}
-                                            </span>
-                                            <div className="min-w-0 flex-1">
-                                                <p className="text-sm font-semibold text-gray-800 truncate">{it.file.name}</p>
-                                                <p className="text-xs text-gray-500">
-                                                    {formatBytes(it.file.size)} · {it.pageCount} pages · using {count}
-                                                </p>
-                                            </div>
-                                            <input
-                                                value={it.range}
-                                                onChange={(e) => setRange(it, e.target.value)}
-                                                placeholder="All pages (e.g. 1-3, 5)"
-                                                className={`w-44 px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 ${it.error ? 'border-red-500' : 'border-gray-300'
-                                                    }`}
-                                            />
-                                            <div className="flex items-center gap-1">
-                                                <button type="button" onClick={() => move(index, -1)} disabled={index === 0} className="p-2 rounded-lg hover:bg-gray-200 disabled:opacity-30" aria-label="Move up">
-                                                    <ArrowUp className="w-4 h-4" />
-                                                </button>
-                                                <button type="button" onClick={() => move(index, 1)} disabled={index === items.length - 1} className="p-2 rounded-lg hover:bg-gray-200 disabled:opacity-30" aria-label="Move down">
-                                                    <ArrowDown className="w-4 h-4" />
-                                                </button>
-                                                <button type="button" onClick={() => toggleExpand(it)} className="p-2 rounded-lg hover:bg-gray-200" aria-label="Toggle pages">
-                                                    {it.expanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                                                </button>
-                                                <button type="button" onClick={() => remove(it.id)} className="p-2 rounded-lg text-red-500 hover:bg-red-50" aria-label="Remove">
-                                                    <Trash2 className="w-4 h-4" />
-                                                </button>
-                                            </div>
-                                        </div>
-                                        {it.error && <p className="px-4 pb-2 text-xs text-red-600">{it.error}</p>}
-
-                                        {it.expanded && (
-                                            <div className="border-t border-gray-200 p-4">
-                                                <div className="flex gap-2 mb-3">
-                                                    <button type="button" onClick={() => setAllPages(it, true)} className="px-3 py-1 text-xs border rounded-lg bg-white hover:bg-gray-100">Select all</button>
-                                                    <button type="button" onClick={() => setAllPages(it, false)} className="px-3 py-1 text-xs border rounded-lg bg-white hover:bg-gray-100">Select none</button>
+                            <ol className="space-y-3" aria-label="PDF merge order">
+                                {items.map((item, index) => {
+                                    const selectedCount = item.selected.filter(Boolean).length;
+                                    return (
+                                        <li
+                                            key={item.id}
+                                            draggable
+                                            onDragStart={(event) => {
+                                                event.dataTransfer.effectAllowed = "move";
+                                                setDragId(item.id);
+                                            }}
+                                            onDragOver={(event) => {
+                                                event.preventDefault();
+                                                event.dataTransfer.dropEffect = "move";
+                                                setOverId(item.id);
+                                            }}
+                                            onDragEnd={() => {
+                                                setDragId(null);
+                                                setOverId(null);
+                                            }}
+                                            onDrop={(event) => {
+                                                event.preventDefault();
+                                                onDrop(item.id);
+                                            }}
+                                            className={`rounded-xl border bg-gray-50 transition ${overId === item.id && dragId !== item.id ? "border-red-500 ring-2 ring-red-200" : "border-gray-200"} ${dragId === item.id ? "opacity-50" : ""}`}
+                                        >
+                                            <div className="flex flex-wrap items-center gap-3 p-3">
+                                                <GripVertical className="h-5 w-5 shrink-0 cursor-grab text-gray-400" aria-hidden="true" />
+                                                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-red-100 text-xs font-bold text-red-800">{index + 1}</span>
+                                                <div className="min-w-0 flex-1">
+                                                    <p className="truncate text-sm font-semibold text-gray-800">{item.file.name}</p>
+                                                    <p className="text-xs text-gray-600">{formatBytes(item.file.size)} · {item.pageCount} {item.pageCount === 1 ? "page" : "pages"} · {selectedCount} selected</p>
                                                 </div>
-                                                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3 max-h-96 overflow-y-auto">
-                                                    {it.selected.map((on, i) => (
-                                                        <button
-                                                            type="button"
-                                                            key={i}
-                                                            onClick={() => togglePage(it, i)}
-                                                            className={`relative rounded-lg border-2 overflow-hidden bg-white aspect-[3/4] flex items-center justify-center ${on ? 'border-red-500' : 'border-gray-200 opacity-50'
-                                                                }`}
-                                                        >
-                                                            {it.thumbs[i] ? (
-                                                                // eslint-disable-next-line @next/next/no-img-element
-                                                                <img src={it.thumbs[i]} alt={`Page ${i + 1}`} className="w-full h-full object-contain" />
-                                                            ) : (
-                                                                <span className="text-xs text-gray-400">Loading…</span>
-                                                            )}
-                                                            <span className="absolute bottom-1 left-1 text-[10px] bg-black/60 text-white px-1.5 rounded">{i + 1}</span>
-                                                            {on && (
-                                                                <span className="absolute top-1 right-1 bg-red-600 text-white rounded-full p-0.5">
-                                                                    <Check className="w-3 h-3" />
-                                                                </span>
-                                                            )}
-                                                        </button>
-                                                    ))}
+                                                <label className="sr-only" htmlFor={`range-${item.id}`}>Pages to include from {item.file.name}</label>
+                                                <input
+                                                    id={`range-${item.id}`}
+                                                    value={item.range}
+                                                    onChange={(event) => setRange(item, event.target.value)}
+                                                    placeholder={`All pages (e.g. 1-${Math.min(3, item.pageCount)}, 5)`}
+                                                    aria-invalid={Boolean(item.error)}
+                                                    className={`w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 sm:w-52 ${item.error ? "border-red-500" : "border-gray-300"}`}
+                                                />
+                                                <div className="flex items-center gap-1">
+                                                    <button type="button" onClick={() => move(index, -1)} disabled={index === 0} className="rounded-lg p-2 hover:bg-gray-200 disabled:opacity-30" aria-label={`Move ${item.file.name} up`}><ArrowUp className="h-4 w-4" /></button>
+                                                    <button type="button" onClick={() => move(index, 1)} disabled={index === items.length - 1} className="rounded-lg p-2 hover:bg-gray-200 disabled:opacity-30" aria-label={`Move ${item.file.name} down`}><ArrowDown className="h-4 w-4" /></button>
+                                                    <button type="button" onClick={() => toggleExpand(item)} className="rounded-lg p-2 hover:bg-gray-200" aria-label={`${item.expanded ? "Hide" : "Preview"} pages in ${item.file.name}`} aria-expanded={item.expanded}>{item.expanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}</button>
+                                                    <button type="button" onClick={() => remove(item.id)} className="rounded-lg p-2 text-red-700 hover:bg-red-50" aria-label={`Remove ${item.file.name}`}><Trash2 className="h-4 w-4" /></button>
                                                 </div>
                                             </div>
-                                        )}
-                                    </li>
-                                );
-                            })}
-                        </ul>
 
-                        <div className="mt-4">
-                            <FileDropzone onFiles={addFiles} compact label="Add more PDF files" />
-                        </div>
+                                            {item.error && <p className="px-4 pb-3 text-sm text-red-700" role="alert">{item.error}</p>}
 
-                        <div className="mt-6 flex flex-col sm:flex-row gap-3 sm:items-center">
-                            <div className="flex items-center border border-gray-300 rounded-xl overflow-hidden sm:w-72">
-                                <input
-                                    value={outName}
-                                    onChange={(e) => setOutName(e.target.value)}
-                                    className="flex-1 px-3 py-3 text-sm focus:outline-none min-w-0"
-                                    placeholder="File name"
-                                />
-                                <span className="px-3 text-sm text-gray-500 bg-gray-50 py-3">.pdf</span>
+                                            {item.expanded && (
+                                                <div className="border-t border-gray-200 p-4">
+                                                    <div className="mb-3 flex flex-wrap gap-2">
+                                                        <button type="button" onClick={() => setAllPages(item, true)} className="rounded-lg border bg-white px-3 py-1.5 text-xs hover:bg-gray-100">Include all pages</button>
+                                                        <button type="button" onClick={() => setAllPages(item, false)} className="rounded-lg border bg-white px-3 py-1.5 text-xs hover:bg-gray-100">Clear page selection</button>
+                                                    </div>
+                                                    <p className="mb-3 text-xs text-gray-600">Select the pages to include. Selected pages are copied in their original order.</p>
+                                                    <div className="grid max-h-96 grid-cols-3 gap-3 overflow-y-auto sm:grid-cols-4 md:grid-cols-6">
+                                                        {item.selected.map((isSelected, pageIndex) => (
+                                                            <button
+                                                                type="button"
+                                                                key={pageIndex}
+                                                                onClick={() => togglePage(item, pageIndex)}
+                                                                aria-pressed={isSelected}
+                                                                aria-label={`${isSelected ? "Exclude" : "Include"} page ${pageIndex + 1} from ${item.file.name}`}
+                                                                className={`relative flex aspect-[3/4] items-center justify-center overflow-hidden rounded-lg border-2 bg-white ${isSelected ? "border-red-600" : "border-gray-200 opacity-60"}`}
+                                                            >
+                                                                {item.thumbs[pageIndex] ? (
+                                                                    // eslint-disable-next-line @next/next/no-img-element
+                                                                    <img src={item.thumbs[pageIndex]} alt={`Preview of page ${pageIndex + 1}`} className="h-full w-full object-contain" />
+                                                                ) : (
+                                                                    <span className="px-2 text-center text-xs text-gray-500">Preview unavailable</span>
+                                                                )}
+                                                                <span className="absolute bottom-1 left-1 rounded bg-black/70 px-1.5 text-[10px] text-white">Page {pageIndex + 1}</span>
+                                                                {isSelected && <span className="absolute right-1 top-1 rounded-full bg-red-700 p-0.5 text-white"><Check className="h-3 w-3" /></span>}
+                                                            </button>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </li>
+                                    );
+                                })}
+                            </ol>
+
+                            <div className="mt-4">
+                                <FileDropzone onFiles={addFiles} compact label="Add more PDF files" />
                             </div>
-                            <div className="flex-1">
-                                <ProcessButton
-                                    onClick={handleMerge}
-                                    loading={status === 'processing'}
-                                    disabled={!canMerge}
-                                    label={`Merge ${totalPages} pages`}
-                                    loadingLabel="Merging..."
-                                />
+
+                            <div className="mt-6 rounded-xl border border-blue-100 bg-blue-50 p-4 text-sm leading-relaxed text-blue-950">
+                                <h3 className="font-semibold">What gets included in the merged file?</h3>
+                                <p className="mt-1">Files are combined in the displayed order. Within each file, selected pages follow their original page order. Use the page-range field or thumbnails to exclude pages before merging. The output is a new PDF; keep your original files until you have checked it.</p>
                             </div>
-                        </div>
-                    </>
+
+                            <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
+                                <label className="sr-only" htmlFor="merged-file-name">Output PDF file name</label>
+                                <div className="flex items-center overflow-hidden rounded-xl border border-gray-300 sm:w-72">
+                                    <input id="merged-file-name" value={outName} onChange={(event) => setOutName(event.target.value)} className="min-w-0 flex-1 px-3 py-3 text-sm focus:outline-none" placeholder="File name" />
+                                    <span className="bg-gray-50 px-3 py-3 text-sm text-gray-600">.pdf</span>
+                                </div>
+                                <div className="flex-1">
+                                    <ProcessButton onClick={handleMerge} loading={status === "processing"} disabled={!canMerge} label={`Merge ${totalSelectedPages} selected ${totalSelectedPages === 1 ? "page" : "pages"}`} loadingLabel="Merging PDFs…" />
+                                </div>
+                            </div>
+                        </>
+                    )}
+
+                    {error && <div className="mt-6 flex items-start gap-2 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800" role="alert"><AlertCircle className="h-5 w-5 shrink-0" /><span>{error}</span></div>}
+                </section>
+
+                {resultInfo && status === "done" && (
+                    <section className="mt-6 rounded-xl border border-green-200 bg-green-50 p-4" aria-live="polite">
+                        <h2 className="font-semibold text-green-950">Merged PDF is ready</h2>
+                        <p className="mt-1 text-sm text-green-900">The output contains {resultInfo.pageCount} selected pages and is {formatBytes(resultInfo.size)}.</p>
+                        <p className="mt-1 text-xs text-green-900">Open the downloaded PDF and check its page order and content before sharing it.</p>
+                    </section>
                 )}
 
-                {error && (
-                    <div className="mt-6 flex items-start gap-2 p-4 bg-red-50 border border-red-200 text-red-700 rounded-xl text-sm">
-                        <AlertCircle className="w-5 h-5 shrink-0" /> <span>{error}</span>
-                    </div>
-                )}
+                <aside className="mt-6 rounded-xl border border-green-100 bg-green-50 p-4 text-sm leading-relaxed text-green-950">
+                    <div className="flex items-start gap-2"><ShieldCheck className="mt-0.5 h-5 w-5 shrink-0" aria-hidden="true" /><p><strong>Privacy:</strong> PDF files are read and merged in your browser. This operation does not upload the selected documents to our server. Password-protected or damaged PDFs may fail; this tool does not remove PDF passwords.</p></div>
+                </aside>
             </div>
 
             <ProcessingModal
                 status={status}
                 progress={progress}
-                title="Merging your PDFs"
+                title="Merging selected PDF pages"
                 message={message}
                 blob={result}
-                filename={`${safeName}.pdf`}
+                filename={safeName}
                 errorMessage={modalError}
                 onCancel={handleCancel}
                 onClose={closeModal}
@@ -411,13 +508,13 @@ export default function MergePDFPage() {
             <ToolSeoContent
                 id="merge-pdf"
                 steps={[
-                    'Click the upload area or drag and drop the PDF files you want to combine.',
-                    'Drag files to change their order, or use A–Z, Z–A or Reverse sorting.',
-                    'Open a file to preview its pages, select only the pages you need, or enter a range such as 1-3, 5.',
-                    'Enter a name for your merged PDF and click Merge.',
-                    'Download your combined PDF. Your files are processed in your browser and are not uploaded.',
+                    "Choose two or more PDF files, or choose one PDF if you only want to extract selected pages into a new file.",
+                    "Arrange files in the desired final order by dragging a file or using the move, sort, or reverse controls.",
+                    "Enter a page range such as 1-3, 5, or open the page preview and select the pages to include. Leave the range blank to include every page in that file.",
+                    "Review the file order and selected-page count, then enter a name for the output PDF.",
+                    "Select Merge and download the result. Open it and check the page order before using or sharing it.",
                 ]}
             />
-        </main >
+        </main>
     );
 }
