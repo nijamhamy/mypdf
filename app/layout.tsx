@@ -5,105 +5,55 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import './globals.css';
 
-const inter = Inter({
-  subsets: ['latin'],
-  display: 'swap',
-});
+const inter = Inter({ subsets: ['latin'], display: 'swap' });
 
-const SITE_URL = (
-  process.env.NEXT_PUBLIC_SITE_URL ?? 'https://mypdf.site'
-).replace(/\/+$/, '');
-
+const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? 'https://mypdf.site').replace(/\/+$/, '');
 const ADSENSE_CLIENT = process.env.NEXT_PUBLIC_ADSENSE_CLIENT;
 const GSC_VERIFICATION = process.env.NEXT_PUBLIC_GSC_VERIFICATION;
 const GA_ID = process.env.NEXT_PUBLIC_GA_ID;
+
+const DEFAULT_TITLE = 'Free Online PDF Tools – Merge, Split, Compress & Convert';
+const DEFAULT_DESC =
+  'Use free online PDF tools to merge, split, compress, rotate, watermark, number and convert PDF files. Private browser-based tools with no signup.';
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
 
   title: {
-    default:
-      'Free Online PDF Tools – Merge, Split, Compress & Convert | mypdf.site',
+    default: `${DEFAULT_TITLE} | mypdf.site`,
     template: '%s | mypdf.site',
   },
-
-  description:
-    'Use free online PDF tools to merge, split, compress, rotate, watermark, number and convert PDF files. Private browser-based tools with no signup.',
-
+  description: DEFAULT_DESC,
   applicationName: 'mypdf.site',
 
   icons: {
     icon: [
-      {
-        url: '/icon.png',
-        type: 'image/png',
-        sizes: '512x512',
-      },
-      {
-        url: '/favicon.ico',
-        sizes: '32x32',
-      },
+      { url: '/icon.png', type: 'image/png', sizes: '512x512' },
+      { url: '/favicon.ico', sizes: '32x32' },
     ],
-    apple: [
-      {
-        url: '/apple-icon.png',
-        type: 'image/png',
-        sizes: '180x180',
-      },
-    ],
+    apple: [{ url: '/apple-icon.png', type: 'image/png', sizes: '180x180' }],
   },
 
-  keywords: [
-    'free online pdf tools',
-    'merge pdf online',
-    'split pdf online',
-    'compress pdf online free',
-    'pdf to jpg converter',
-    'jpg to pdf converter',
-    'pdf to word converter',
-    'rotate pdf pages',
-    'add watermark to pdf',
-    'add page numbers to pdf',
-    'pdf tools without upload',
-  ],
-
-  authors: [
-    {
-      name: 'mypdf.site',
-      url: SITE_URL,
-    },
-  ],
-
+  authors: [{ name: 'mypdf.site', url: SITE_URL }],
   creator: 'mypdf.site',
   publisher: 'mypdf.site',
 
-  alternates: {
-    canonical: '/',
-  },
+  // NOTE: no global `alternates.canonical` here. Each page sets its own.
 
   openGraph: {
     type: 'website',
-    url: SITE_URL,
     siteName: 'mypdf.site',
-    title:
-      'Free Online PDF Tools – Merge, Split, Compress & Convert | mypdf.site',
+    locale: 'en_US',
+    title: `${DEFAULT_TITLE} | mypdf.site`,
     description:
       'Merge, split, compress, rotate, watermark, number and convert PDFs free in your browser. No signup. Files never leave your device.',
-    images: [
-      {
-        url: '/og-image.png',
-        width: 1200,
-        height: 630,
-        alt: 'mypdf.site – Free Online PDF Tools',
-      },
-    ],
+    images: [{ url: '/og-image.png', width: 1200, height: 630, alt: 'mypdf.site – Free Online PDF Tools' }],
   },
 
   twitter: {
     card: 'summary_large_image',
     title: 'Free Online PDF Tools | mypdf.site',
-    description:
-      'Merge, split, compress and convert PDFs free in your browser. Private, fast and no signup.',
+    description: 'Merge, split, compress and convert PDFs free in your browser. Private, fast and no signup.',
     images: ['/og-image.png'],
   },
 
@@ -119,21 +69,12 @@ export const metadata: Metadata = {
     },
   },
 
-  ...(GSC_VERIFICATION
-    ? {
-      verification: {
-        google: GSC_VERIFICATION,
-      },
-    }
-    : {}),
+  alternates: {
+    types: { 'application/rss+xml': `${SITE_URL}/feed.xml` },
+  },
 
-  ...(ADSENSE_CLIENT
-    ? {
-      other: {
-        'google-adsense-account': ADSENSE_CLIENT,
-      },
-    }
-    : {}),
+  ...(GSC_VERIFICATION ? { verification: { google: GSC_VERIFICATION } } : {}),
+  ...(ADSENSE_CLIENT ? { other: { 'google-adsense-account': ADSENSE_CLIENT } } : {}),
 };
 
 export const viewport: Viewport = {
@@ -142,30 +83,35 @@ export const viewport: Viewport = {
   themeColor: '#2563eb',
 };
 
-const websiteJsonLd = {
+const siteJsonLd = {
   '@context': 'https://schema.org',
-  '@type': 'WebSite',
-  name: 'mypdf.site',
-  alternateName: 'MyPDF',
-  url: SITE_URL,
-  inLanguage: 'en',
-  description:
-    'Free online PDF tools to merge, split, compress, rotate, watermark, number and convert PDF files without uploading them.',
-  publisher: {
-    '@type': 'Organization',
-    name: 'mypdf.site',
-    url: SITE_URL,
-  },
+  '@graph': [
+    {
+      '@type': 'WebSite',
+      '@id': `${SITE_URL}/#website`,
+      name: 'mypdf.site',
+      alternateName: 'MyPDF',
+      url: SITE_URL,
+      inLanguage: 'en',
+      description:
+        'Free online PDF tools to merge, split, compress, rotate, watermark, number and convert PDF files without uploading them.',
+      publisher: { '@id': `${SITE_URL}/#organization` },
+    },
+    {
+      '@type': 'Organization',
+      '@id': `${SITE_URL}/#organization`,
+      name: 'mypdf.site',
+      url: SITE_URL,
+      logo: `${SITE_URL}/icon.png`,
+    },
+  ],
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <head>
+        {/* Keep as a plain <script>: next/script adds data-nscript, which AdSense warns about */}
         {ADSENSE_CLIENT && (
           <script
             async
@@ -175,9 +121,7 @@ export default function RootLayout({
         )}
       </head>
 
-      <body
-        className={`${inter.className} bg-gray-50 text-gray-900 flex flex-col min-h-screen antialiased`}
-      >
+      <body className={`${inter.className} bg-gray-50 text-gray-900 flex flex-col min-h-screen antialiased`}>
         <a
           href="#main-content"
           className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[100] focus:bg-white focus:text-blue-700 focus:font-semibold focus:px-4 focus:py-2 focus:rounded-lg focus:shadow-lg"
@@ -186,22 +130,16 @@ export default function RootLayout({
         </a>
 
         <Navbar />
-
-        <div id="main-content" className="flex-grow">
-          {children}
-        </div>
-
+        <div id="main-content" className="flex-grow">{children}</div>
         <Footer />
 
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify(websiteJsonLd).replace(/</g, '\\u003c'),
-          }}
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(siteJsonLd).replace(/</g, '\\u003c') }}
         />
-      </body>
 
-      {GA_ID && <GoogleAnalytics gaId={GA_ID} />}
+        {GA_ID && <GoogleAnalytics gaId={GA_ID} />}
+      </body>
     </html>
   );
 }

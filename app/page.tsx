@@ -14,41 +14,41 @@ import {
   Flame,
 } from "lucide-react";
 import ToolsExplorer from "@/app/pdf-converter/ToolsExplorer";
+import BlogCard from "@/components/BlogCard";
 import { TOOLS } from "@/lib/tools";
+import { getAllPosts } from "@/lib/blog";
 import { FAQ_ITEMS } from "@/app/faq/faq-data";
+
+// Re-check for new blog posts every 5 minutes so the home page stays fresh.
+export const revalidate = 300;
 
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://mypdf.site").replace(/\/$/, "");
 
+const HOME_TITLE = "Free Online PDF Tools – Merge, Split, Compress | mypdf.site"; // 60 characters
+const HOME_DESC =
+  "Use free online PDF tools to merge, split, compress, rotate, watermark, number and convert PDF files. Private browser-based tools with no signup.";
+const OG_IMAGE = { url: "/og-image.png", width: 1200, height: 630, alt: "mypdf.site – Free Online PDF Tools" };
+
 export const metadata: Metadata = {
-  metadataBase: new URL(SITE_URL),
-  title: "Free Online PDF Tools – Merge, Split, Compress & Convert | mypdf.site",
-  description:
-    "Use free online PDF tools to merge, split, compress, rotate, watermark, number and convert PDF files. Private browser-based tools with no signup.",
-  keywords: [
-    "free online pdf tools",
-    "merge pdf online",
-    "split pdf online",
-    "compress pdf online free",
-    "pdf to jpg converter",
-    "jpg to pdf converter",
-    "rotate pdf pages",
-    "add watermark to pdf",
-    "add page numbers to pdf",
-    "pdf tools without upload",
-  ],
+  // `absolute` skips the layout's "%s | mypdf.site" template, which would repeat the site name.
+  title: { absolute: HOME_TITLE },
+  description: HOME_DESC,
   alternates: { canonical: "/" },
   openGraph: {
     type: "website",
     url: SITE_URL,
     siteName: "mypdf.site",
-    title: "Free Online PDF Tools – Merge, Split, Compress & Convert | mypdf.site",
+    locale: "en_US",
+    title: HOME_TITLE,
     description:
       "Merge, split, compress, rotate, watermark, number and convert PDFs free in your browser. No signup. Files are not uploaded for processing.",
+    images: [OG_IMAGE], // required here: a page-level openGraph replaces the layout's completely
   },
   twitter: {
     card: "summary_large_image",
     title: "Free Online PDF Tools | mypdf.site",
     description: "Merge, split, compress and convert PDFs free in your browser. Private, fast and no signup.",
+    images: [OG_IMAGE.url],
   },
   robots: {
     index: true,
@@ -64,9 +64,8 @@ export const metadata: Metadata = {
 };
 
 /**
- * Editorial order of tools, most commonly used PDF tasks first.
- * This is a judgement based on the usual lineup of well-known PDF sites, not measured
- * traffic data. When you have real analytics, reorder this list by actual usage.
+ * Editorial order of tools, common PDF tasks first.
+ * This is a judgement, not measured traffic. When you have real analytics, reorder by actual usage.
  * IDs that do not exist in TOOLS are ignored; tools not listed are placed at the end.
  */
 const TOOL_POPULARITY_ORDER = [
@@ -82,7 +81,10 @@ const TOOL_POPULARITY_ORDER = [
   "watermark-pdf",
   "image-sheet",
 ];
-const MOST_USED_COUNT = 6;
+const FEATURED_COUNT = 6;
+
+// Phones/tablets show the first 2; desktop (lg+) shows all 3.
+const LATEST_POSTS_COUNT = 3;
 
 const orderedTools = (() => {
   const rank = new Map(TOOL_POPULARITY_ORDER.map((id, index) => [id, index]));
@@ -117,24 +119,61 @@ const HIGHLIGHTS = [
 
 const FAQ_PREVIEW_IDS = ["is-it-free", "files-uploaded", "verify-privacy", "file-size"];
 
-export default function Home() {
+export default async function Home() {
+  // If the blog source fails, the home page still renders without the blog section.
+  let latestPosts: Awaited<ReturnType<typeof getAllPosts>> = [];
+  try {
+    latestPosts = (await getAllPosts()).slice(0, LATEST_POSTS_COUNT);
+  } catch {
+    latestPosts = [];
+  }
+
   const faqPreview = FAQ_PREVIEW_IDS.map((id) => FAQ_ITEMS.find((faq) => faq.id === id)).filter(
     (faq): faq is (typeof FAQ_ITEMS)[number] => Boolean(faq)
   );
-  const mostUsed = orderedTools.slice(0, MOST_USED_COUNT);
+  const featured = orderedTools.slice(0, FEATURED_COUNT);
 
+  // Linked to the WebSite and Organization nodes defined in app/layout.tsx through their @id values.
   const jsonLd = {
     "@context": "https://schema.org",
-    "@type": "WebApplication",
-    name: "mypdf.site",
-    url: SITE_URL,
-    applicationCategory: "UtilitiesApplication",
-    operatingSystem: "Any",
-    browserRequirements: "Requires a modern web browser",
-    description:
-      "Free browser-based PDF tools to merge, split, rotate, watermark, number and convert PDF files without uploading them to a server.",
-    offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
-    featureList: orderedTools.map((tool) => tool.title),
+    "@graph": [
+      {
+        "@type": "WebPage",
+        "@id": `${SITE_URL}/#webpage`,
+        url: SITE_URL,
+        name: HOME_TITLE,
+        description: HOME_DESC,
+        inLanguage: "en",
+        isPartOf: { "@id": `${SITE_URL}/#website` },
+        about: { "@id": `${SITE_URL}/#app` },
+      },
+      {
+        "@type": "WebApplication",
+        "@id": `${SITE_URL}/#app`,
+        name: "mypdf.site",
+        url: SITE_URL,
+        applicationCategory: "UtilitiesApplication",
+        operatingSystem: "Any",
+        browserRequirements: "Requires a modern web browser",
+        isAccessibleForFree: true,
+        description:
+          "Free browser-based PDF tools to merge, split, rotate, watermark, number and convert PDF files without uploading them to a server.",
+        offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+        featureList: orderedTools.map((tool) => tool.title),
+        publisher: { "@id": `${SITE_URL}/#organization` },
+      },
+      {
+        "@type": "ItemList",
+        "@id": `${SITE_URL}/#tools`,
+        name: "Free PDF tools",
+        itemListElement: orderedTools.map((tool, index) => ({
+          "@type": "ListItem",
+          position: index + 1,
+          name: tool.title,
+          url: `${SITE_URL}${tool.href}`,
+        })),
+      },
+    ],
   };
 
   return (
@@ -162,7 +201,7 @@ export default function Home() {
 
           <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
             <a href="#popular" className="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-700 px-8 py-3.5 font-semibold text-white shadow-md transition-all hover:bg-blue-800">
-              Most-used tools
+              Everyday tools
               <ArrowRight className="h-5 w-5" aria-hidden="true" />
             </a>
             <a href="#tools" className="inline-flex items-center justify-center gap-2 rounded-xl border border-gray-300 bg-white px-8 py-3.5 font-semibold text-gray-800 transition-all hover:bg-gray-50">
@@ -186,10 +225,10 @@ export default function Home() {
               <div>
                 <h2 id="popular-heading" className="flex items-center gap-2 text-2xl font-bold text-gray-900 sm:text-3xl">
                   <Flame className="h-6 w-6 text-orange-600" aria-hidden="true" />
-                  Most-used PDF tools
+                  Everyday PDF tools
                 </h2>
                 <p className="mt-1 text-sm text-gray-700">
-                  The everyday PDF jobs, starting with the tasks people most often need.
+                  The PDF jobs people reach for most often, in one click.
                 </p>
               </div>
               <a href="#all-tools-heading" className="text-sm font-semibold text-blue-700 underline-offset-2 hover:underline">
@@ -198,7 +237,7 @@ export default function Home() {
             </div>
 
             <ol className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              {mostUsed.map((tool, index) => (
+              {featured.map((tool, index) => (
                 <li key={tool.id}>
                   <Link
                     href={tool.href}
@@ -233,9 +272,7 @@ export default function Home() {
               <h2 id="all-tools-heading" className="text-2xl font-bold text-gray-900 sm:text-3xl">
                 All Free PDF Tools
               </h2>
-              <p className="mt-1 text-sm text-gray-700">
-                Every tool, with the most commonly used first.
-              </p>
+              <p className="mt-1 text-sm text-gray-700">Every tool, with the everyday ones first.</p>
             </div>
 
             <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -291,6 +328,41 @@ export default function Home() {
               })}
             </ul>
           </section>
+
+          {latestPosts.length > 0 && (
+            <section aria-labelledby="blog-heading" className="space-y-6">
+              <div className="flex flex-wrap items-end justify-between gap-2">
+                <div>
+                  <h2 id="blog-heading" className="text-2xl font-bold text-gray-900 sm:text-3xl">
+                    Latest from the blog
+                  </h2>
+                  <p className="mt-1 text-sm text-gray-700">Practical guides and tips for everyday PDF work.</p>
+                </div>
+                <Link href="/blogs" className="text-sm font-semibold text-blue-700 underline-offset-2 hover:underline">
+                  View all blogs
+                </Link>
+              </div>
+
+              {/* Phone: 1 column, 2 cards. Tablet: 2 columns, 2 cards. Desktop: 3 columns, 3 cards. */}
+              <ul className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                {latestPosts.map((post, index) => (
+                  <li key={post.id} className={index >= 2 ? "hidden lg:block" : undefined}>
+                    <BlogCard post={post} />
+                  </li>
+                ))}
+              </ul>
+
+              <div className="text-center">
+                <Link
+                  href="/blogs"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-gray-300 bg-white px-7 py-3 font-semibold text-gray-800 transition-all hover:bg-gray-50"
+                >
+                  Read all articles
+                  <ArrowRight className="h-5 w-5" aria-hidden="true" />
+                </Link>
+              </div>
+            </section>
+          )}
 
           <section id="how-it-works" aria-labelledby="how-heading" className="scroll-mt-24 space-y-6">
             <div className="text-center">

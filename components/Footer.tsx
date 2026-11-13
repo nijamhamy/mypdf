@@ -33,6 +33,7 @@ export default function Footer() {
                     <ul className="space-y-2 text-sm">
                         <li><Link href="/about" className={linkCls}>About us</Link></li>
                         <li><Link href="/features" className={linkCls}>Features &amp; guides</Link></li>
+                        <li><Link href="/blogs" className={linkCls}>Blogs</Link></li>
                         <li><Link href="/faq" className={linkCls}>FAQ</Link></li>
                         <li><Link href="/pdf-converter" className={linkCls}>PDF converter hub</Link></li>
                         <li><Link href="/feedback" className={linkCls}>Feedback</Link></li>
